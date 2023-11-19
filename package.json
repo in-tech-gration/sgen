@@ -1,0 +1,33 @@
+{
+  "name": "sgen",
+  "version": "0.1.0",
+  "description": "Syllabus Generation Tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "sgen": "./sgen.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/in-tech-gration/sgen.git"
+  },
+  "keywords": [
+    "markdown"
+  ],
+  "author": "kostasx",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/in-tech-gration/sgen/issues"
+  },
+  "homepage": "https://github.com/in-tech-gration/sgen#readme",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "csv": "^6.3.5",
+    "fs-extra": "^11.1.1",
+    "gray-matter": "^4.0.3",
+    "marked": "^10.0.0",
+    "yaml": "^2.3.4"
+  }
+}
