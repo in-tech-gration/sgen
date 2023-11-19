@@ -1,0 +1,2 @@
+# sgen
+Syllabus Generation Tool
