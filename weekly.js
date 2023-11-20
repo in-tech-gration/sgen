@@ -5,7 +5,7 @@ const { parse, stringify } = require("csv/sync");
 const marked = require("marked");
 const matter = require('gray-matter');
 const { 
-  wdxTemplateRegexes,
+  templateRegexes,
   replaceInclude,
   replaceModule,
   createExerciseFolders,
@@ -37,7 +37,7 @@ function parseWeeklyPatterns({ raw, numOfWeek, weeklyContent, title }){
     includesRegex,
     moduleRegex
 
-  } = wdxTemplateRegexes;
+  } = templateRegexes;
 
   const date = new Date();
   const DDMMYYYY = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}` 

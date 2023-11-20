@@ -17,7 +17,7 @@ const {
 } = require("./utils/");
 
 const { 
-  wdxTemplateRegexes,
+  templateRegexes,
   replaceModule,
   getFrontMatterStringFromObject,
 } = require("./utils");
@@ -57,7 +57,7 @@ function createContentFromYaml({ configYaml, filename }) {
       // weeklyContentRegex,
       // includesRegex
   
-    } = wdxTemplateRegexes;
+    } = templateRegexes;
   
     // const date = new Date();
     // const DDMMYYYY = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}` 
@@ -219,7 +219,7 @@ if (require.main === module) {
 // 4) EXPORT SECTION: ==========================================================
 
 module.exports = {
-  wdxTemplateRegexes, // This export is for testing purposes.
+  templateRegexes, // This export is for testing purposes.
   getFrontMatterStringFromObject,
   createSyllabusFromMarkdownText
 }

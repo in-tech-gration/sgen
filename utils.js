@@ -4,42 +4,7 @@ const chalk    = require("chalk");
 const { warn } = require("./utils/");
 const matter   = require('gray-matter');
 const { INCLUDES_FOLDER, MODULES_FOLDER } = require("./constants");
-
-const wdxTemplateRegexes = {
-
-  markdownTargetBlank: /\[(.*?)\]\((.*?)\)\{:target="_blank"\}/gi,
-  // const [ _, linkText, URL ] = markdownTargetBlank.exec( text );
-
-  assetsDir:          /\{\{\s?WDX:\s?ASSETS_DIR\s?\}\}/gi,
-  exercisesDir:       /\{\{\s?WDX:\s?EXERCISES_DIR\s?\}\}/gi,
-  assetsAsCodeRegex:  /\{\{\s?WDX:\s?ASSETS_AS_CODE\s?\}\}/gi,
-  // TODO: weekRegex will be replaced by weekFullRegex and weekNumRegex
-  weekRegex:          /\{\{\s?WDX:\s?WEEK\s?\}\}/gi,
-  weekNumRegex:       /\{\{\s?WDX:\s?WEEK_NUM\s?\}\}/gi,
-  weekFullRegex:      /\{\{\s?WDX:\s?WEEK_FULL\s?\}\}/gi,
-  titleRegex:         /\{\{\s?WDX:\s?TITLE\s?\}\}/gi,
-  // TODO: dayRegex will be replaced by dayFullRegex and dayNumRegex
-  dayRegex:           /\{\{\s?WDX:\s?DAY\s?\}\}/gi,
-  dayFullRegex:       /\{\{\s?WDX:\s?DAY_FULL\s?\}\}/gi,
-  dayNumRegex:        /\{\{\s?WDX:\s?DAY_NUM\s?\}\}/gi,
-  scheduleRegex:      /\{\{\s?WDX:\s?DAILY_SCHEDULE\s?\}\}/gi,
-  studyPlanRegex:     /\{\{\s?WDX:\s?STUDY_PLAN\s?\}\}/gi,
-  summaryRegex:       /\{\{\s?WDX:\s?SUMMARY\s?\}\}/gi,
-  exercisesRegex:     /\{\{\s?WDX:\s?EXERCISES\s?\}\}/gi,
-  extrasRegex:        /\{\{\s?WDX:\s?EXTRAS\s?\}\}/gi,
-  attributionsRegex:  /\{\{\s?WDX:\s?ATTRIBUTIONS\s?\}\}/gi,
-  includesRegex:      /\{\{\s?WDX:\s?INCLUDES:(.*)\s?\}\}/gi,
-  moduleRegex:        /( *?)\{\{\s?WDX:\s?MODULE:(.*)\s?\}\}/gi,
-  dateUpdatedRegex:   /\{\{\s?WDX:\s?DATE_UPDATED\s?\}\}/gi,
-  weeklyContentRegex: /\{\{\s?WDX:\s?WEEKLY_CONTENT\s?\}\}/gi,
-  wdx: {
-    meta: {
-      progress: /<!-- WDX:META:PROGRESS:(?<params>.*) -->\n/i,
-      tests: /<!-- WDX:META:TESTS:(?<params>.*) -->\n/i,
-    }
-  }
-
-}
+const { templateRegexes } = require("./template_patterns");
 
 // APPEND FRONTMATTER TO THE OUTPUT FILE:
 function getFrontMatterStringFromObject(fm, liveCodeEnabled=false) {
@@ -83,7 +48,7 @@ function getInclude({ file, day, numOfWeek }){
     weekFullRegex,
     dayRegex
 
-  } = wdxTemplateRegexes;
+  } = templateRegexes;
 
   const includeFile = path.join( INCLUDES_FOLDER, file.trim() + ".md" );
 
@@ -210,18 +175,18 @@ function parseTokenForLiveCoding( token ) {
 // Search for WDX:META patterns:
 function parseWdxMetaProgress({ token }){
 
-  const wdxMetaProgressRegex = wdxTemplateRegexes.wdx.meta.progress;
+  const metaProgressRegex = templateRegexes.meta.progress;
   const entryDefault = {
     task: null,
     instructions: "Update FALSE to TRUE in the COMPLETED column",
     level: "Beginner"
   }
   const output = { hasMeta: null, meta: null, raw: null }
-  const hasWdxMeta = token.raw.match(wdxMetaProgressRegex); 
+  const hasWdxMeta = token.raw.match(metaProgressRegex); 
   if ( hasWdxMeta ){
 
     output.hasMeta = true;
-    const raw = token.raw.replace(wdxMetaProgressRegex, "");
+    const raw = token.raw.replace(metaProgressRegex, "");
     const params = hasWdxMeta.groups.params.split("|");
     const entry = {}
     params.forEach( param =>{
@@ -238,14 +203,14 @@ function parseWdxMetaProgress({ token }){
 // Search for WDX:META:TESTS
 function parseWdxMetaTests({ token }){
 
-  const wdxMetaTestsRegex = wdxTemplateRegexes.wdx.meta.tests;
+  const metaTestsRegex = templateRegexes.meta.tests;
   const output = { hasMeta: null, meta: null, raw: null };
-  const hasWdxMetaTests = token.raw.match(wdxMetaTestsRegex);
+  const hasWdxMetaTests = token.raw.match(metaTestsRegex);
 
   if ( hasWdxMetaTests ) {
     
     output.hasMeta = true;
-    const raw = token.raw.replace(wdxMetaTestsRegex, "");
+    const raw = token.raw.replace(metaTestsRegex, "");
     const params = hasWdxMetaTests.groups.params.split("|");
     const entry = {};
     params.forEach( param =>{
@@ -297,7 +262,7 @@ function createExerciseFolders({ weeklyData, title, numOfWeek }){
 }
 
 module.exports = {
-  wdxTemplateRegexes,
+  templateRegexes,
   getFrontMatterStringFromObject,
   getInclude,
   replaceInclude,

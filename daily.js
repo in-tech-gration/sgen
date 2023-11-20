@@ -6,7 +6,7 @@ const matter = require('gray-matter');
 const { ok, warn, xmark } = require("./utils/");
 
 const { 
-  wdxTemplateRegexes,
+  templateRegexes,
   getInclude,
   replaceInclude,
   parseWdxMetaProgress,
@@ -37,7 +37,7 @@ function replaceSectionFromObject({ section, contentObject, day, numOfWeek }){
       assetsAsCodeRegex,
       dayRegex,
       dayNumRegex 
-    } = wdxTemplateRegexes;
+    } = templateRegexes;
 
     if ( !contentObject[section] ){
 
@@ -252,7 +252,7 @@ function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }){
       attributionsRegex,
       includesRegex,
 
-    } = wdxTemplateRegexes;
+    } = templateRegexes;
 
     dailyContent += token.raw
     .replace(weekRegex, `Week ${numOfWeek}`)
