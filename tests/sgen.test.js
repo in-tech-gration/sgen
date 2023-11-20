@@ -125,7 +125,7 @@ const textContent = `
 
 ## Syllabus
 
-{{ WDX:Syllabus }}
+{{ SGEN:Syllabus }}
 
 ---
 `
