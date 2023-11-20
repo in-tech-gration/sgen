@@ -1,11 +1,12 @@
 const path = require("node:path");
 
-const SCHEDULE        = "Schedule";
-const EXTRA_RESOURCES = "Extra Resources";
-const STUDY_PLAN      = "Study Plan";
-const SUMMARY         = "Summary";
-const EXERCISES       = "Exercises";
-const ATTRIBUTIONS    = "Sources and Attributions";
+const SCHEDULE         = "Schedule";
+const EXTRA_RESOURCES  = "Extra Resources";
+const STUDY_PLAN       = "Study Plan";
+const SUMMARY          = "Summary";
+const EXERCISES        = "Exercises";
+const ATTRIBUTIONS     = "Sources and Attributions";
+const SYLLABUS_PATTERN = "SGEN:Syllabus"
 
 const MODULES_FOLDER  = path.join("curriculum", "modules");
 const INCLUDES_FOLDER = path.join("curriculum", "schedule", "includes");
@@ -21,5 +22,6 @@ module.exports = {
   MODULES_FOLDER,
   SCHEDULE,
   STUDY_PLAN,
-  SUMMARY
+  SUMMARY,
+  SYLLABUS_PATTERN
 }

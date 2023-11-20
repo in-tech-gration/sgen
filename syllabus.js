@@ -2,6 +2,7 @@ const yaml = require('yaml');
 const marked = require("marked");
 const matter = require('gray-matter');
 const { getFrontMatterStringFromObject } = require("./utils");
+const { SYLLABUS_PATTERN } = require("./constants");
 
 function createSyllabusEntries(syllabus, messages) {
 
@@ -51,8 +52,6 @@ function createSyllabusEntries(syllabus, messages) {
 }
 
 function replaceMarkdownWithSyllabus(markdownTokens, syllabusText) {
-
-  const SYLLABUS_PATTERN = "WDX:Syllabus"
 
   return markdownTokens.map(token => {
 
