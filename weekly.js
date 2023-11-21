@@ -119,8 +119,8 @@ function generateWeeklyProgressSheetFromWeeklyData({ weeklyData, title }){
 
   const csvHeaders = `Week,Day,Concept,Task,Level,Confidence,Completed,Instructions`;
   let csv = csvHeaders;
-
-  weeklyData.forEach( dailyData =>{
+  
+    weeklyData.forEach( dailyData =>{
 
     let dailyCSV = csvHeaders;
 
@@ -169,22 +169,19 @@ function generateWeeklyProgressSheetFromWeeklyData({ weeklyData, title }){
     csv += dailyCSV;
 
     try {
-      parse(dailyCSV);
-      ok(`${checkmark} CSV Linting looks good!`);
-  
-      const userFolder       = path.join("user", `week${week}`, "progress");
-      const userFolderExists = fs.existsSync(userFolder)
-  
-      if ( userFolderExists ) {
-    
-        warn(`Folder '${userFolder}' already exists.`);
+      
+      const userProgressFolder       = path.join("user", `week${week}`, "progress");
+      const userProgressFolderExists = fs.existsSync(userProgressFolder)
+      
+      if ( !userProgressFolderExists ) {
         
-      } else {
-        
-        fs.mkdirSync(userFolder, { recursive: true });
-        console.log(`Folder '${userFolder}' created.`);
+        fs.mkdirSync(userProgressFolder, { recursive: true });
+        info(`Folder '${userProgressFolder}' created.`);
         
       }
+      
+      parse(dailyCSV);
+      ok(`${checkmark} CSV Linting looks good!`);
 
       const progressFilename = `progress.draft.w${week}.d${paddedDay}.csv`;
 
@@ -196,7 +193,7 @@ function generateWeeklyProgressSheetFromWeeklyData({ weeklyData, title }){
       console.log("Writing to file " + progressFilename + ":");
 
       fs.writeFileSync(
-        path.join( userFolder, progressFilename ),
+        path.join( userProgressFolder, progressFilename ),
         dailyCSV, "utf-8"
       );
       
@@ -290,17 +287,28 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
   } = yaml.parse(configYaml);
   const weeklyFolder       = path.join("curriculum", filename);
   const weeklyFolderExists = fs.existsSync(weeklyFolder);
+  const weeklyUserFolder       = path.join("user", filename);;
+  const weeklyUserFolderExists = fs.existsSync(weeklyUserFolder);
 
   if ( weeklyFolderExists ) {
 
-    warn(`Folder '${filename}' already exists.`);
-    
-  } else {
-    
-    fs.mkdirSync(weeklyFolder);
-    console.log(`Folder '${filename}' created.`);
+    warn(`Folder '${weeklyFolder}' already exists. Deleting it to begin from scratch.`);
+    fs.rmSync(weeklyFolder, { recursive: true });
     
   }
+    
+  fs.mkdirSync(weeklyFolder);
+  info(`Folder '${weeklyFolder}' created.`);
+
+  if ( weeklyUserFolderExists ) {
+    
+    warn(`User Folder '${weeklyUserFolder}' already exists. Deleting it to begin from scratch.`);
+    fs.rmSync(weeklyUserFolder, { recursive: true });
+
+  } 
+
+  fs.mkdirSync(weeklyUserFolder);
+  info(`User Folder '${weeklyUserFolder}' created.`);
 
   const textContent = fs.readFileSync( markdownDraftTemplate, "utf-8");
 

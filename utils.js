@@ -246,9 +246,9 @@ function createExerciseFolders({ weeklyData, title, numOfWeek }){
 
     const doesWeeklyUserFolderExist = fs.existsSync(weeklyUserFolder);
 
-    if ( doesWeeklyUserFolderExist ) {
-      warn(`Folder '${weeklyUserFolder}' already exists.`);
-    } else {
+    // Because 'user/weekXX/' folder is re-created at the beginning of SGEN, the check below will always be true.
+    // Leaving it for safety.
+    if ( !doesWeeklyUserFolderExist ) {
       fs.mkdirSync(weeklyUserFolder, { recursive: true });
       console.log(`Folder '${weeklyUserFolder}' created.`);
     }
