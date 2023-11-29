@@ -12,5 +12,6 @@ Syllabus Generation Tool
 
 - `git clone git@github.com:in-tech-gration/sgen.git`
 - `cd sgen`
+- `npm install`
 - `npm link`
 - `sgen --version`
