@@ -30,7 +30,7 @@ const templateRegexes = {
   includesRegexDoc:   "SGEN:INCLUDES:include_name",
 
   moduleRegex:        /( *?)\{\{\s?SGEN:\s?MODULE:(.*)\s?\}\}/gi,
-  moduleRegexDoc:     "SGEN:MODULE:some/path/index.md",
+  moduleRegexDoc:     "SGEN:MODULE:some/path_inside_modules/index.md",
 
   dateUpdatedRegex:   /\{\{\s?SGEN:\s?DATE_UPDATED\s?\}\}/gi,
   weeklyContentRegex: /\{\{\s?SGEN:\s?WEEKLY_CONTENT\s?\}\}/gi,
