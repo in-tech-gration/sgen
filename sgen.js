@@ -152,6 +152,18 @@ function init() {
     process.exit();
   }
 
+  if ( param && ( param === "--patterns" || param === "-p" ) ){
+    const regexEntries = Object.entries(templateRegexes);
+    console.log(`Available patterns:`);
+    console.log(`===================`);
+    regexEntries.forEach(([key,value])=>{
+      if ( key.endsWith("Doc" ) ){
+        console.log( value );
+      }
+    })
+    process.exit();
+  }
+
   // Handle alternative syntax: npm run sgen 5
   if ( typeof weekNum === "number" && !Number.isNaN(weekNum) ){
     configYamlPath = path.join(

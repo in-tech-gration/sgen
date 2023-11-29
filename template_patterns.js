@@ -4,7 +4,11 @@ const templateRegexes = {
   // const [ _, linkText, URL ] = markdownTargetBlank.exec( text );
 
   assetsDir:          /\{\{\s?SGEN:\s?ASSETS_DIR\s?\}\}/gi,
+  assetsDirDoc:       "SGEN:ASSETS_DIR",
+
   exercisesDir:       /\{\{\s?SGEN:\s?EXERCISES_DIR\s?\}\}/gi,
+  exercisesDirDoc:    "SGEN:EXERCISES_DIR",
+
   assetsAsCodeRegex:  /\{\{\s?SGEN:\s?ASSETS_AS_CODE\s?\}\}/gi,
   // TODO: weekRegex will be replaced by weekFullRegex and weekNumRegex
   weekRegex:          /\{\{\s?SGEN:\s?WEEK\s?\}\}/gi,
@@ -21,10 +25,17 @@ const templateRegexes = {
   exercisesRegex:     /\{\{\s?SGEN:\s?EXERCISES\s?\}\}/gi,
   extrasRegex:        /\{\{\s?SGEN:\s?EXTRAS\s?\}\}/gi,
   attributionsRegex:  /\{\{\s?SGEN:\s?ATTRIBUTIONS\s?\}\}/gi,
+
   includesRegex:      /\{\{\s?SGEN:\s?INCLUDES:(.*)\s?\}\}/gi,
+  includesRegexDoc:   "SGEN:INCLUDES:include_name",
+
   moduleRegex:        /( *?)\{\{\s?SGEN:\s?MODULE:(.*)\s?\}\}/gi,
+  moduleRegexDoc:     "SGEN:MODULE:some/path/index.md",
+
   dateUpdatedRegex:   /\{\{\s?SGEN:\s?DATE_UPDATED\s?\}\}/gi,
   weeklyContentRegex: /\{\{\s?SGEN:\s?WEEKLY_CONTENT\s?\}\}/gi,
+  weeklyContentRegexDoc: "SGEN:WEEKLY_CONTENT",
+
   meta: {
     progress: /<!-- SGEN:META:PROGRESS:(?<params>.*) -->\n/i,
     tests: /<!-- SGEN:META:TESTS:(?<params>.*) -->\n/i,
