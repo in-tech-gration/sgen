@@ -142,17 +142,29 @@ function createContentFromYaml({ configYaml, filename }) {
 function init() {
 
   /* eslint-disable-next-line no-undef */
-  const param = process.argv[2]; // Either curriculum/schedule/week04.yaml or 4
+  const startsWithDash = process.argv[2].startsWith("--") || process.argv[2].startsWith("-");
+  const paramIndex = startsWithDash ? 3 : 2;
+
+  let option = null;
+
+  if ( startsWithDash ){
+    option = process.argv[2];
+  } else if ( process.argv[3] && ( process.argv[3].startsWith("--") || process.argv[3].startsWith("-") ) ) {
+    option = process.argv[3];
+  }
+
+  const param = process.argv[paramIndex]; // Either curriculum/schedule/week04.yaml or 4
   const weekNum = parseInt(param, 10);
   let configYamlPath = param;
+  global.sgenConfig = {}
 
-  if ( param && ( param === "--version" || param === "-v" ) ){
+  if ( option && ( option === "--version" || option === "-v" ) ){
     const packageJSON = require("./package.json");
     console.log("v" + packageJSON.version);
     process.exit();
   }
 
-  if ( param && ( param === "--patterns" || param === "-p" ) ){
+  if ( option && ( option === "--patterns" || option === "-p" ) ){
     const regexEntries = Object.entries(templateRegexes);
     console.log(`Available patterns:`);
     console.log(`===================`);
@@ -162,6 +174,10 @@ function init() {
       }
     })
     process.exit();
+  }
+
+  if ( option && ( option === "--debug" || option === "-d" ) ){
+    global.sgenConfig.debug = true;
   }
 
   // Handle alternative syntax: npm run sgen 5

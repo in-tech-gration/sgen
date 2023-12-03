@@ -336,6 +336,11 @@ function copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder }){
 
     warn(`${xmark} ERROR COPYING: ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`);
 
+    // DEBUG MODE: Print full error/stack trace
+    if ( global.sgenConfig.debug ){
+      console.log(err);
+    }
+
   }
 
 }
