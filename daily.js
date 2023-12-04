@@ -10,7 +10,8 @@ const {
   getInclude,
   replaceInclude,
   parseWdxMetaProgress,
-  parseWdxMetaTests
+  parseWdxMetaTests,
+  replaceModuleRead
 } = require("./utils");
 
 const { 
@@ -36,7 +37,8 @@ function replaceSectionFromObject({ section, contentObject, day, numOfWeek }){
       weekNumRegex,
       assetsAsCodeRegex,
       dayRegex,
-      dayNumRegex 
+      dayNumRegex,
+      moduleReadRegex 
     } = templateRegexes;
 
     if ( !contentObject[section] ){
@@ -87,7 +89,8 @@ function replaceSectionFromObject({ section, contentObject, day, numOfWeek }){
     .replace(weekRegex, `Week ${numOfWeek}`)
     .replace(weekNumRegex, `${numOfWeek}`)
     .replace(dayNumRegex, `${String(day).padStart(2,"0")}`)
-    .replace(dayRegex, `Day ${day}`);
+    .replace(dayRegex, `Day ${day}`)
+    .replace(moduleReadRegex, replaceModuleRead);
 
     return dailyScheduleSection;
   }
