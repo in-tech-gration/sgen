@@ -102,6 +102,23 @@ function replaceModule( match, lineSpaces, modulePath, offset, string ){
 
 }
 
+/** function replaceModuleRead( replaceArgs ) returns string
+ * REPLACES: 
+ *  {{ SGEN:MODULE_READ:path/to/index.md }} 
+ * WITH:
+ *  - [Read: **frontMatter.title**](../modules/path/to/index.md){:target="_blank"}
+ * */ 
+function replaceModuleRead( match, lineSpaces, modulePath, offset, string) {
+
+  // console.log({ match, lineSpaces, modulePath, offset });
+  const fullPath = path.join(MODULES_FOLDER, modulePath.trim());
+  const textContent = fs.readFileSync(fullPath, "utf-8");
+  const { content, data: fm, orig } = matter(textContent);
+  
+  return `  - [Read: **${fm.title}**](../modules/${modulePath.trim()}){:target="_blank"}`;
+
+}
+
 // Deep Markdown Token parsing for Assets (./assets/*)
 function parseTokenForAssetAndPushToArray( token, hrefs ){
   
@@ -271,5 +288,6 @@ module.exports = {
   parseWdxMetaProgress,
   parseWdxMetaTests,
   createExerciseFolders,
-  replaceModule
+  replaceModule,
+  replaceModuleRead
 }
