@@ -23,7 +23,7 @@ function createSyllabusEntries(syllabus, messages) {
       scheduleEntries.forEach(([index, v], idx, list) => {
 
         const indexPadded = index.padStart(2, "0");
-        const link = v.open ? `${unitLowerCase}${indexPadded}/index.md` : "#";
+        const link = v.open ? `${unitLowerCase}${indexPadded}/index.md` : `#${unitLowerCase}${indexPadded}/index.md`;
         if (v.no_unit) {
           syllabusText += `  - [**${v.title}**](${link})`;
         } else {
