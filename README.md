@@ -16,7 +16,7 @@ Syllabus Generation Tool
 - `npm link`
 - `sgen --version`
 
-## Template Patters
+## Template Patterns
 
 - `{{ SGEN:ASSETS_DIR }}` -> `curriculum/week<NUM_OF_WEEK>/assets`
 - `{{ SGEN:ASSETS_AS_CODE }}` -> `<GITHUB_BLOB_URL>curriculum/week<NUM_OF_WEEK>/assets`
