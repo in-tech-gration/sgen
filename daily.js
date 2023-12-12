@@ -105,7 +105,8 @@ function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }){
     return;
   }
 
-  const dailyModuleDir = path.join( MODULES_FOLDER, dayMeta.module ); 
+  // TODO: Make this to request absolute paths instead.
+  const dailyModuleDir = dayMeta.module.startsWith('curriculum') ? dayMeta.module : path.join( MODULES_FOLDER, dayMeta.module ); 
   const pathStats = fs.statSync(dailyModuleDir);
   let dailyModule = dailyModuleDir;
   // We can either pass a directory (that contains an index.md file) or a full path that includes a filename, e.g. extra_day.md
