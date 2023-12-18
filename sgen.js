@@ -13,6 +13,7 @@ const fs   = require("node:fs");
 const matter = require('gray-matter');
 const yaml = require('yaml');
 const {
+  info,
   warn
 } = require("./utils/");
 
@@ -140,6 +141,12 @@ function createContentFromYaml({ configYaml, filename }) {
 }
 
 function init() {
+
+  if ( process.argv.length  === 2 ){
+    // console.log(process.argv);
+    info("Display available options");
+    return process.exit();
+  }
 
   /* eslint-disable-next-line no-undef */
   const startsWithDash = process.argv[2].startsWith("--") || process.argv[2].startsWith("-");
