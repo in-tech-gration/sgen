@@ -24,6 +24,7 @@
   "homepage": "https://github.com/in-tech-gration/sgen#readme",
   "dependencies": {
     "chalk": "^4.1.2",
+    "commander": "^11.1.0",
     "csv": "^6.3.5",
     "fs-extra": "^11.1.1",
     "gray-matter": "^4.0.3",

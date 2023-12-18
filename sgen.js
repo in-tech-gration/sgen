@@ -12,6 +12,7 @@ const path = require("node:path");
 const fs   = require("node:fs");
 const matter = require('gray-matter');
 const yaml = require('yaml');
+const { Command } = require('commander');
 const {
   info,
   warn
@@ -25,6 +26,7 @@ const {
 
 const { createWeeklyContentFromYaml } = require("./weekly");
 const { createSyllabusFromMarkdownText } = require("./syllabus");
+const { argv } = require("node:process");
 
 // TODO:
 // 1) Warn about #### inside the ### Module sections. Use **Bold** instead.
@@ -142,36 +144,26 @@ function createContentFromYaml({ configYaml, filename }) {
 
 function init() {
 
-  if ( process.argv.length  === 2 ){
-    // console.log(process.argv);
-    info("Display available options");
-    return process.exit();
-  }
-
-  /* eslint-disable-next-line no-undef */
-  const startsWithDash = process.argv[2].startsWith("--") || process.argv[2].startsWith("-");
-  const paramIndex = startsWithDash ? 3 : 2;
-
-  let option = null;
-
-  if ( startsWithDash ){
-    option = process.argv[2];
-  } else if ( process.argv[3] && ( process.argv[3].startsWith("--") || process.argv[3].startsWith("-") ) ) {
-    option = process.argv[3];
-  }
-
-  const param = process.argv[paramIndex]; // Either curriculum/schedule/week04.yaml or 4
-  const weekNum = parseInt(param, 10);
-  let configYamlPath = param;
+  let configYamlPath;
   global.sgenConfig = {}
 
-  if ( option && ( option === "--version" || option === "-v" ) ){
-    const packageJSON = require("./package.json");
-    console.log("v" + packageJSON.version);
-    process.exit();
-  }
+  const packageJSON = require("./package.json");
+  const program = new Command();
 
-  if ( option && ( option === "--patterns" || option === "-p" ) ){
+  // Declare command line options
+  program
+    .name('sgen')
+    .usage('-V/--version | -p/--patterns | -d/--debug <configYamlPath> | <configYamlPath>')
+    .version(`v${packageJSON.version}`)
+    .option('-d, --debug', 'output extra debugging.')
+    .option('-p, --patterns', 'display available SGEN patterns.');
+
+  program.parse();
+  const options = program.opts();
+  
+  if (options.debug) global.sgenConfig.debug = true;
+  
+  if (options.patterns) {
     const regexEntries = Object.entries(templateRegexes);
     console.log(`Available patterns:`);
     console.log(`===================`);
@@ -183,23 +175,22 @@ function init() {
     process.exit();
   }
 
-  if ( option && ( option === "--debug" || option === "-d" ) ){
-    global.sgenConfig.debug = true;
+  // After parsing, remaining arguments will be stored at program.args array.
+  const argument = program.args[0];
+
+  if (!argument) {
+    warn("Missing configYamlPath. Re-run with -h/--help for more options.");
+    process.exit();
   }
 
-  // Handle alternative syntax: npm run sgen 5
+  configYamlPath = argument;
+  const weekNum = parseInt(argument, 10);
   if ( typeof weekNum === "number" && !Number.isNaN(weekNum) ){
     configYamlPath = path.join(
       "curriculum", 
       "schedule", 
       `week${String(weekNum).padStart(2,"0")}.yaml`
     );
-  }
-
-  if (!configYamlPath) {
-    warn("No configYamlPath.")
-    /* eslint-disable-next-line no-undef */
-    process.exit();
   }
 
   const configYaml = fs.readFileSync(configYamlPath, "utf-8");
