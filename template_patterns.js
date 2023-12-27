@@ -55,7 +55,7 @@ const templateRegexes = {
   attributionsRegexDoc: "SGEN:ATTRIBUTIONS",
 
 
-  includesRegex:      /\{\{\s?SGEN:\s?INCLUDES:(.*)\s?\}\}/gi,
+  includesRegex:      /\{\{\s?SGEN:\s?INCLUDES:([^\s]+)\s?\}\}/gi,
   includesRegexDoc:   "SGEN:INCLUDES:include_name",
 
   moduleRegex:        /( *?)\{\{\s?SGEN:\s?MODULE:(.*)\s?\}\}/gi,
