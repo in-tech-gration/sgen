@@ -4,6 +4,7 @@ const path = require("node:path");
 const { parse, stringify } = require("csv/sync");
 const marked = require("marked");
 const matter = require('gray-matter');
+// TODO: Why do we have 2 utils? utils.js and utils/index.js?
 const { 
   templateRegexes,
   replaceInclude,
@@ -16,13 +17,40 @@ const {
   ok,
   info,
   xmark,
-  checkmark
+  checkmark,
+  rmSyncExclude
 } = require("./utils/");
 const {
   parseDailyContent,
   copyDailyExercises,
   copyDailyMediaAssets
 } = require("./daily");
+
+// CONDITIONALS: IF "weekly_suggestions"
+function weeklySuggestionsGuard({ match, group1, string, day,numOfWeek }){
+
+  let skipThisSection = false;
+
+  try {
+
+    console.log({ match, group1, string, day, numOfWeek });
+    const weekendMarkdown = path.join( 
+      "curriculum", `week${numOfWeek}`, "WEEKEND.md"
+      );
+    const weekendMarkdownExists = fs.existsSync(weekendMarkdown);
+    if ( !weekendMarkdownExists ) {
+      skipThisSection = true; // Will skip this section
+    }
+
+  } catch(e){
+
+    console.log(e);
+
+  }
+
+  return skipThisSection; 
+
+}
 
 // Mini-parsers: (to be moved elsewhere and unit-tested)
 function parseWeeklyPatterns({ raw, numOfWeek, weeklyContent, title }){
@@ -48,7 +76,15 @@ function parseWeeklyPatterns({ raw, numOfWeek, weeklyContent, title }){
   .replace(titleRegex, title)
   .replace(dateUpdatedRegex, DDMMYYYY)
   .replace(weeklyContentRegex, weeklyContent)
-  .replace(includesRegex, replaceInclude({ numOfWeek }))
+  .replace(
+    includesRegex, 
+    replaceInclude({ 
+      numOfWeek, 
+      conditionals: {
+        // IF PATTERN       : CALLBACK
+        "weekly_suggestions": weeklySuggestionsGuard
+      } 
+  }))
   .replace(moduleRegex, replaceModule );
 
   return newRaw;
@@ -292,13 +328,14 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
 
   if ( weeklyFolderExists ) {
 
-    warn(`Folder '${weeklyFolder}' already exists. Deleting it to begin from scratch.`);
-    fs.rmSync(weeklyFolder, { recursive: true });
+    warn(`Folder '${weeklyFolder}' already exists. (Selectively) deleting it to begin from scratch.`);
+    // fs.rmSync(weeklyFolder, { recursive: true });
+    rmSyncExclude(weeklyFolder, ["WEEKEND.md"]); // Selective rm excluding files/folders inside the 2nd argument
     
   }
     
-  fs.mkdirSync(weeklyFolder);
-  info(`Folder '${weeklyFolder}' created.`);
+  // fs.mkdirSync(weeklyFolder);
+  info(`Folder '${weeklyFolder}' recreated.`);
 
   if ( weeklyUserFolderExists ) {
     

@@ -58,6 +58,7 @@ const templateRegexes = {
   includesRegex:      /\{\{\s?SGEN:\s?INCLUDES:([^\s]+)\s?\}\}/gi,
   includesRegexDoc:   "SGEN:INCLUDES:include_name",
 
+  // TODO: Replace (.*) with ([^\s]+) to avoid extraneous spaces:
   moduleRegex:        /( *?)\{\{\s?SGEN:\s?MODULE:(.*)\s?\}\}/gi,
   moduleRegexDoc:     "SGEN:MODULE:some/path_inside_modules/index.md",
 

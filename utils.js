@@ -69,14 +69,35 @@ function getInclude({ file, day, numOfWeek }){
 
 }
 
-function replaceInclude({ day, numOfWeek } = {}){
+function replaceInclude({ day, numOfWeek, conditionals } = {}){
+
+  const paddedDay = String(day).padStart(2,"0");
+  const paddedNumOfWeek = String(numOfWeek).padStart(2,"0");
 
   return function( match, group1, string){
 
+    // If we have a special conditional callback, run the checks
+    // to see whether we can skip some sections:
+    if ( conditionals && conditionals[group1] ){
+
+      const skip = conditionals[group1]({ 
+        match,
+        group1,
+        string,
+        day,
+        numOfWeek 
+      });
+
+      if ( skip ){
+        return "";
+      }
+
+    }
+
     return getInclude({ 
       file: group1, 
-      day: String(day).padStart(2,"0"), 
-      numOfWeek: String(numOfWeek).padStart(2,"0") 
+      day: paddedDay, 
+      numOfWeek: paddedNumOfWeek 
     });
 
   }

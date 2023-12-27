@@ -222,7 +222,26 @@ function createFrontMatterMarkdownFromObject( fmObj ){
   return fmText;
 
 }
+// Thanks ChatGPT!
+function rmSyncExclude(dir, excludeItems) {
+  fs.readdirSync(dir).forEach((item) => {
+    const itemPath = path.join(dir, item);
 
+    if (excludeItems.includes(item)) {
+      // Skip excluded items
+      return;
+    }
+
+    if (fs.statSync(itemPath).isDirectory()) {
+      // Recursively remove files and subdirectories
+      rmSyncExclude(itemPath, excludeItems);
+    } else {
+      // Remove files
+      fs.rmSync(itemPath);
+    }
+  });
+
+}
 module.exports = {
   appendObjectToResources,
   checkmark,
@@ -243,5 +262,6 @@ module.exports = {
   warn,
   info,
   ok,
-  createFrontMatterMarkdownFromObject
+  createFrontMatterMarkdownFromObject,
+  rmSyncExclude
 }
