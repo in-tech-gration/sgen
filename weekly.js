@@ -403,8 +403,11 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
     daysEntries.forEach( dailyEntry =>{
       
       const dailyModuleFolder = dailyEntry[1].module;
-      copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder });
-      copyDailyExercises({ weeklyFolder, dailyModuleFolder });
+      // LEGACY
+      if (dailyModuleFolder) {
+        copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder });
+        copyDailyExercises({ weeklyFolder, dailyModuleFolder });
+      }
       
     });
     // [DEPRECATED] IN FAVOR OF copyDailyMediaAssets()
