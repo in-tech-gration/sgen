@@ -27,6 +27,7 @@ const {
 const { createWeeklyContentFromYaml } = require("./weekly");
 const { createSyllabusFromMarkdownText } = require("./syllabus");
 const { argv } = require("node:process");
+const { SCHEDULE_FOLDER } = require("./constants");
 
 // TODO:
 // 1) Warn about #### inside the ### Module sections. Use **Bold** instead.
@@ -145,7 +146,10 @@ function createContentFromYaml({ configYaml, filename }) {
 function init() {
 
   let configYamlPath;
-  global.sgenConfig = {}
+  global.sgenConfig = {
+    debug: false,
+    scheduleFolder: SCHEDULE_FOLDER
+  }
 
   const packageJSON = require("./package.json");
   const program = new Command();
@@ -156,12 +160,17 @@ function init() {
     .usage('-V/--version | -p/--patterns | -d/--debug <configYamlPath> | <configYamlPath>')
     .version(`v${packageJSON.version}`)
     .option('-d, --debug', 'output extra debugging.')
+    .option('-s, --schedule <folder>', 'specifies the schedule folder.')
     .option('-p, --patterns', 'display available SGEN patterns.');
 
   program.parse();
   const options = program.opts();
   
   if (options.debug) global.sgenConfig.debug = true;
+
+  if (options.schedule) {
+    global.sgenConfig.scheduleFolder = options.schedule;
+  }
   
   if (options.patterns) {
     const regexEntries = Object.entries(templateRegexes);
@@ -186,11 +195,22 @@ function init() {
   configYamlPath = argument;
   const weekNum = parseInt(argument, 10);
   if ( typeof weekNum === "number" && !Number.isNaN(weekNum) ){
-    configYamlPath = path.join(
-      "curriculum", 
-      "schedule", 
-      `week${String(weekNum).padStart(2,"0")}.yaml`
-    );
+    const scheduleWeekFolderExists = fs.existsSync(path.join(global.sgenConfig.scheduleFolder, `week${String(weekNum).padStart(2,"0")}`));
+    
+    if (scheduleWeekFolderExists) { // Expects to find the weekXX.yaml file inside <SCHEDULE_FOLDER>/weekXX/ folder
+      configYamlPath = path.join(
+        "curriculum",
+        "schedule",
+        `week${String(weekNum).padStart(2,"0")}`,
+        `week${String(weekNum).padStart(2,"0")}.yaml`
+      );
+    } else { // LEGACY: Expects to find the weekXX.yaml file inside curriculum/schedule/ folder
+      configYamlPath = path.join(
+        "curriculum", 
+        "schedule", 
+        `week${String(weekNum).padStart(2,"0")}.yaml`
+      );
+    }
   }
 
   const configYaml = fs.readFileSync(configYamlPath, "utf-8");
