@@ -10,6 +10,7 @@ const SYLLABUS_PATTERN = "SGEN:Syllabus"
 
 const MODULES_FOLDER  = path.join("curriculum", "modules");
 const INCLUDES_FOLDER = path.join("curriculum", "schedule", "includes");
+const SCHEDULE_FOLDER = path.join("curriculum", "schedule");
 
 const GITHUB_BLOB_URL = "https://github.com/in-tech-gration/WDX-180/blob/main/";
 
@@ -23,5 +24,6 @@ module.exports = {
   SCHEDULE,
   STUDY_PLAN,
   SUMMARY,
-  SYLLABUS_PATTERN
+  SYLLABUS_PATTERN,
+  SCHEDULE_FOLDER
 }
