@@ -97,22 +97,30 @@ function replaceSectionFromObject({ section, contentObject, day, numOfWeek }){
 
 }
 
-function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }){
-
+function parseDailyEntry({ entry, numOfWeek}) {
   const [ day, dayMeta ] = entry;
 
-  if ( !dayMeta.module ){
-    return;
+  let dailyModuleDir;
+  if ( dayMeta.module ){ // LEGACY: Expects pattern <TOPIC>/<SUB_TOPIC>/.../(index.md) inside MODULES_FOLDER (curriculum/modules/)
+    dailyModuleDir = dayMeta.module.startsWith('curriculum') ? dayMeta.module : path.join( MODULES_FOLDER, dayMeta.module ); 
+  } else { // Expects the name of the file, that exists inside <SCHEDULE_FOLDER>/weekXX/ folder 
+    dailyModuleDir = path.join( global.sgenConfig.scheduleFolder, `week${numOfWeek}`, dayMeta );
   }
 
-  // TODO: Make this to request absolute paths instead.
-  const dailyModuleDir = dayMeta.module.startsWith('curriculum') ? dayMeta.module : path.join( MODULES_FOLDER, dayMeta.module ); 
   const pathStats = fs.statSync(dailyModuleDir);
   let dailyModule = dailyModuleDir;
-  // We can either pass a directory (that contains an index.md file) or a full path that includes a filename, e.g. extra_day.md
+  // LEGACY: We can either pass a directory (that contains an index.md file) or a full path that includes a filename, e.g. extra_day.md
   if ( pathStats.isDirectory() ){
     dailyModule = path.join( dailyModuleDir, "index.md" ); 
   }
+
+  return [day, dailyModule, dailyModuleDir];
+}
+
+function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }){
+
+  const [day, dailyModule, dailyModuleDir] = parseDailyEntry({ entry, numOfWeek });
+
   let moduleMarkdown = null;
   try {
     moduleMarkdown = fs.readFileSync(dailyModule, "utf-8");
