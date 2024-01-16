@@ -24,11 +24,11 @@ schedule:
     5: _day05.md
 ```
 
-- `constastants.js`
+- `constants.js`
     - `SCHEDULE_FOLDER` containing value: `path**.**join("curriculum", "schedule")`
 - `sgen.js`
-    - New global vaule inside `sgenConfig` created, named `scheduleFolder`
-        - default initiliazed to value of constant `SCHEDULE_FOLDER`
+    - New global value inside `sgenConfig` created, named `scheduleFolder`
+        - default initialized to value of constant `SCHEDULE_FOLDER`
         - can be set via `-s/--schedule <folder>`   command line option
 - `weekly.js`
     - Check for `dailyModuleFolder` added, since new yaml format does not contain a `module` variable under each day
