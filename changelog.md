@@ -2,6 +2,16 @@
 
 ## Branch: v2
 
+### 16/01/2024
+
+The changes below were made in order to properly create progress sheets and tests from imported/included modules as links.
+
+- `utils.js`
+    - New function `parseTagsFromLinkToModule` added, in order to search a markdown token for link(s) to module and parse
+    said links for {{ SGEN }} tags. Current tags supported: SGEN:META:PROGRESS, SGEN:META:TESTS
+- `daily.js`
+    - Calls `parseTagsFromLinkToModule` for each markdown token on each daily markdown
+
 ### 15/01/2024
 
 The changes below were made to apply to the new format of the .yaml config files like the one found below: 

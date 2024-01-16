@@ -2,6 +2,7 @@ const path     = require("node:path");
 const fs       = require("node:fs");
 const chalk    = require("chalk");
 const { warn } = require("./utils/");
+const marked = require("marked");
 const matter   = require('gray-matter');
 const { INCLUDES_FOLDER, MODULES_FOLDER } = require("./constants");
 const { templateRegexes } = require("./template_patterns");
@@ -270,6 +271,61 @@ function parseWdxMetaTests({ token }){
 
 }
 
+/**
+ * Search token for a link to module and parses said module for any {{ SGEN }} tags.
+ * Current tags supported: SGEN:META:PROGRESS, SGEN:META:TESTS
+ * @param {string} token token
+ * @returns { {progressEntries, testEntries} } object with arrays of entries for supported tags. null if error
+ */
+function parseTagsFromLinkToModule(token){
+
+  const progressEntries = [];
+  const testEntries = [];
+
+  // regex to find the relative path of our modules, which is in a string like this: '(../modules<PATH>)'
+  const regex = /\]\((\.\.\/modules\/([^\)]+))/g;
+  let match;
+  while ((match = regex.exec(token.raw)) !== null) {
+    
+    // match[2] contains the content captured by the second capturing group (([^\)]+)), which is the specific part of the path we want.
+    const modulePath = path.join(MODULES_FOLDER, match[2]);
+    
+    try {
+      
+      // Read each module linked, and parse it for supported {{ SGEN }}
+      const moduleMarkdown = fs.readFileSync(modulePath, "utf-8");
+      
+      const { content, data: fm, orig } = matter(moduleMarkdown);
+      const moduleMarkdownTokens = marked.lexer(content);
+      
+      moduleMarkdownTokens.forEach(token => {
+        const wdxMetaProgress = parseWdxMetaProgress({ token });
+        const wdxMetaTests = parseWdxMetaTests({ token });
+        
+        if (wdxMetaProgress.hasMeta) {
+          progressEntries.push({
+            ...wdxMetaProgress.meta
+          });
+        } else if (wdxMetaTests.hasMeta) {
+          testEntries.push({
+            ...wdxMetaTests.meta
+          });
+        }
+      });
+      
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+
+  }
+
+  return {
+    progressEntries,
+    testEntries
+  }
+}
+
 function createExerciseFolders({ weeklyData, title, numOfWeek }){
 
   weeklyData.forEach((dailyData, idx) =>{
@@ -308,6 +364,7 @@ module.exports = {
   parseTokenForMediaAssets,
   parseWdxMetaProgress,
   parseWdxMetaTests,
+  parseTagsFromLinkToModule,
   createExerciseFolders,
   replaceModule,
   replaceModuleRead

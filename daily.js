@@ -11,7 +11,8 @@ const {
   replaceInclude,
   parseWdxMetaProgress,
   parseWdxMetaTests,
-  replaceModuleRead
+  replaceModuleRead,
+  parseTagsFromLinkToModule
 } = require("./utils");
 
 const { 
@@ -166,6 +167,17 @@ function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }){
 
     if (!liveCodeEnabled) {
       liveCodeEnabled = parseTokenForLiveCoding(token);
+    }
+
+    const entriesFromLinkToModule = parseTagsFromLinkToModule(token);
+
+    if (entriesFromLinkToModule !== null) {
+      if (entriesFromLinkToModule.progressEntries.length > 0) {
+        dailyProgressObject.entries.push(...entriesFromLinkToModule.progressEntries);
+      }
+      if (entriesFromLinkToModule.testEntries.length > 0) {
+        dailyTestsObject.entries.push(...entriesFromLinkToModule.testEntries);
+      }
     }
 
     if ( token.type === "heading" && token.depth === 3 ){
