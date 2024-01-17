@@ -13,12 +13,9 @@ const fs   = require("node:fs");
 const matter = require('gray-matter');
 const yaml = require('yaml');
 const { Command } = require('commander');
-const {
-  info,
-  warn
-} = require("./utils/");
 
-const { 
+const {
+  warn, 
   templateRegexes,
   replaceModule,
   getFrontMatterStringFromObject,

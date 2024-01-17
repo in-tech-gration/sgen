@@ -4,22 +4,20 @@ const path = require("node:path");
 const { parse, stringify } = require("csv/sync");
 const marked = require("marked");
 const matter = require('gray-matter');
-// TODO: Why do we have 2 utils? utils.js and utils/index.js?
-const { 
-  templateRegexes,
-  replaceInclude,
-  replaceModule,
-  createExerciseFolders,
-  getFrontMatterStringFromObject
-} = require("./utils");
+
 const {
   warn,
   ok,
   info,
   xmark,
   checkmark,
-  rmSyncExclude
-} = require("./utils/");
+  rmSyncExclude, 
+  templateRegexes,
+  replaceInclude,
+  replaceModule,
+  createExerciseFolders,
+  getFrontMatterStringFromObject
+} = require("./utils");
 const {
   parseDailyContent,
   copyDailyExercises,

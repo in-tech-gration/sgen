@@ -3,9 +3,11 @@ const fs   = require("node:fs");
 const fse  = require('fs-extra');
 const marked = require("marked");
 const matter = require('gray-matter');
-const { ok, warn, xmark } = require("./utils/");
 
-const { 
+const {
+  ok,
+  warn,
+  xmark, 
   templateRegexes,
   getInclude,
   replaceInclude,

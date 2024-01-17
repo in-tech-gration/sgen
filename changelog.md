@@ -2,6 +2,14 @@
 
 ## Branch: v2
 
+### 17/01/2024
+
+Moved all functions from file `utils/index.js` into `utils.js` since we had 2 different files with utility functions.
+
+- Deleted `utils/index.js`
+- Renamed `utils/index.test.js` -> `tests/utils.test.js`
+- Updated imports to files: `daily.js`, `sgen.js`, `weekly.js`
+
 ### 16/01/2024
 
 The changes below were made in order to properly create progress sheets and tests from imported/included modules as links.

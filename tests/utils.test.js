@@ -1,6 +1,6 @@
 const test = require("node:test");
 const { equal, deepStrictEqual } = require("node:assert");
-const { getYouTubeListIdParts } = require("./index"); 
+const { getYouTubeListIdParts } = require("../utils"); 
 
 test('Testing getYouTubeListIdParts()', () => {
 
