@@ -332,11 +332,13 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
     // fs.rmSync(weeklyFolder, { recursive: true });
     rmSyncExclude(weeklyFolder, ["WEEKEND.md"]); // Selective rm excluding files/folders inside the 2nd argument
     
-  }
-    
-  // fs.mkdirSync(weeklyFolder);
-  info(`Folder '${weeklyFolder}' recreated.`);
+  } else {
 
+    fs.mkdirSync(weeklyFolder);
+    info(`Folder '${weeklyFolder}' created.`);
+  
+  }
+  
   if ( weeklyUserFolderExists ) {
     
     warn(`User Folder '${weeklyUserFolder}' already exists. Deleting it to begin from scratch.`);
@@ -397,6 +399,9 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
     outputContent = parseWeeklyPatterns({ raw: fmString, numOfWeek, title }) + outputContent;
   
     const weeklyIndexMarkdown = path.join( weeklyFolder, "index.md" );
+    if ( !fs.existsSync(weeklyIndexMarkdown) ) {
+      console.log("Could not find:", weeklyIndexMarkdown);
+    }
     fs.writeFileSync(weeklyIndexMarkdown, outputContent, "utf-8");
     
     // Copy Media Assets from Module folder to curriculum/ 
