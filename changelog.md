@@ -2,6 +2,14 @@
 
 ## Branch: v2
 
+### 22/01/2024
+
+- Merged changes from `main` branch's commit with id `0e005c2` from 21/01/2024
+- Started making unit tests for `utils.js` functions:
+    - 3 tests for 'getFrontMatterStringFromObject'
+    - 3 tests for 'parseWdxMetaProgress'
+    - 2 tests for 'parseWdxMetaTests'
+
 ### 17/01/2024
 
 Moved all functions from file `utils/index.js` into `utils.js` since we had 2 different files with utility functions.
