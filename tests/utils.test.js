@@ -1,34 +1,11 @@
 const test = require("node:test");
-const { equal, deepStrictEqual } = require("node:assert");
+const { deepStrictEqual } = require("node:assert");
 const {
-  getYouTubeListIdParts,
   getFrontMatterStringFromObject,
   parseWdxMetaProgress,
   parseWdxMetaTests,
 } = require("../utils");
 
-// =================================================================
-
-test("Testing getYouTubeListIdParts()", () => {
-  const input1 =
-    "https://www.youtube.com/watch?v=JZXQ455OT3A&list=PL0Zuz27SZ-6PFkIxaJ6Xx_X46avTM1aYw&index=1&pp=iAQB";
-  const output1 = [
-    "https://www.youtube.com/watch?v=JZXQ455OT3A",
-    "&list=PL0Zuz27SZ-6PFkIxaJ6Xx_X46avTM1aYw",
-    "&index=1&pp=iAQB",
-  ];
-  deepStrictEqual(getYouTubeListIdParts(input1), output1);
-
-  const input2 =
-    "https://www.youtube.com/playlist?list=PL0Zuz27SZ-6PFkIxaJ6Xx_X46avTM1aYw";
-  const output2 = [
-    "https://www.youtube.com/playlist",
-    "?list=PL0Zuz27SZ-6PFkIxaJ6Xx_X46avTM1aYw",
-  ];
-  deepStrictEqual(getYouTubeListIdParts(input2), output2);
-});
-
-// TODO: Test createFrontMatterMarkdownFromObject()
 // =================================================================
 
 test("Testing 'getFrontMatterStringFromObject' with empty object", () => {

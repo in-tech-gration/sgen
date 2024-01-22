@@ -9,6 +9,7 @@
     - 3 tests for 'getFrontMatterStringFromObject'
     - 3 tests for 'parseWdxMetaProgress'
     - 2 tests for 'parseWdxMetaTests'
+- Removed redundant functions from `utils.js`
 
 ### 17/01/2024
 
