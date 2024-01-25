@@ -426,10 +426,12 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
       weeklyData, title 
     });
 
-    // Generate yaml tests:
-    const test = generateWeeklyTestsFromWeeklyData({
-      weeklyData, title
-    });
+    if (global.sgenConfig.tests) {
+      // Generate yaml tests:
+      const test = generateWeeklyTestsFromWeeklyData({
+        weeklyData, title
+      });
+    }
 
   } catch(e) {
 

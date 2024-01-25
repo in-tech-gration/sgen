@@ -2,6 +2,10 @@
 
 ## Branch: v2
 
+### 25/01/2024
+
+- Added `--no-tests` flag to generate content without GitHub Workflow tests.
+
 ### 22/01/2024
 
 - Merged changes from `main` branch's commit with id `0e005c2` from 21/01/2024

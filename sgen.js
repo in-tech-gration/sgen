@@ -145,7 +145,8 @@ function init() {
   let configYamlPath;
   global.sgenConfig = {
     debug: false,
-    scheduleFolder: SCHEDULE_FOLDER
+    scheduleFolder: SCHEDULE_FOLDER,
+    tests: true
   }
 
   const packageJSON = require("./package.json");
@@ -154,20 +155,21 @@ function init() {
   // Declare command line options
   program
     .name('sgen')
-    .usage('-V/--version | -p/--patterns | -d/--debug <configYamlPath> | <configYamlPath>')
+    .usage('-V/--version | -p/--patterns | -d/--debug --no-tests -s/--schedule <folder> <configYamlPath> | <configYamlPath>')
     .version(`v${packageJSON.version}`)
     .option('-d, --debug', 'output extra debugging.')
     .option('-s, --schedule <folder>', 'specifies the schedule folder.')
-    .option('-p, --patterns', 'display available SGEN patterns.');
+    .option('-p, --patterns', 'display available SGEN patterns.')
+    .option('--no-tests', 'generate content without tests.');
 
   program.parse();
   const options = program.opts();
   
   if (options.debug) global.sgenConfig.debug = true;
 
-  if (options.schedule) {
-    global.sgenConfig.scheduleFolder = options.schedule;
-  }
+  if (options.schedule) global.sgenConfig.scheduleFolder = options.schedule;
+
+  if (options.tests === false) global.sgenConfig.tests = options.tests;
   
   if (options.patterns) {
     const regexEntries = Object.entries(templateRegexes);
