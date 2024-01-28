@@ -2,6 +2,13 @@
 
 ## Branch: v2
 
+### 29/01/2024
+
+- Added feature to append new steps to an already existing job on the `.yaml` files created by function `generateWeeklyTestsFromWeeklyData({ weeklyData, title })`
+- New function `generateTestsFromWeeklyData({ weeklyData, title })` created, to replace `generateWeeklyTestsFromWeeklyData({ weeklyData, title })` in order to create a single yaml file for each day of the week.
+    - Needs some polishing.
+    - Tests created have not been tested via GitHub Actions
+
 ### 25/01/2024
 
 - Added `--no-tests` flag to generate content without GitHub Workflow tests.

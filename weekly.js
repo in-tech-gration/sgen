@@ -241,6 +241,92 @@ function generateWeeklyProgressSheetFromWeeklyData({ weeklyData, title }){
   return csv;
 }
 
+// TODO: [WIP] Function below is similar to generateWeeklyTestsFromWeeklyData({ weeklyData, title }) but creates only one .yaml file per day
+function generateTestsFromWeeklyData({ weeklyData, title }){
+  
+  const workflowsFolder = path.join(".github", "workflows");
+  const workflowsFolderExists = fs.existsSync(workflowsFolder);
+
+  if ( workflowsFolderExists ) {
+
+    warn(`Folder ${workflowsFolder} already exists.`);
+
+  } else {
+
+    fs.mkdirSync(workflowsFolder, { recursive: true });
+    info(`Folder ${workflowsFolder} created.`);
+
+  }
+
+  weeklyData.forEach(dailyData => {
+
+    const { week, day } = dailyData.tests;
+    const testEntries = dailyData.tests.entries;
+    // const upPaddedWeek   = week.indexOf("0") === 0 ? week.slice(1) : week;
+    const paddedDay      = String(day).padStart(2,"0");
+  
+    if ( !dailyData || !dailyData.tests ){
+      return;
+    }
+
+    const dayTestName = `name: "W${week}D${paddedDay} Tests"`;
+    const dayTriggerOn = `on:\n  push:\n    branches:\n      - 'main'\n    paths:\n      - user/week${week}/exercises/day${paddedDay}/**`;
+    const dayJobs = `jobs:`
+    const dayTestFile = `w${week}-d${paddedDay}.yaml`;
+    const dayTestFilePath = path.join(workflowsFolder, dayTestFile);
+    const dayTestFilePathExists = fs.existsSync(dayTestFilePath);
+  
+    let dayYamlContent = `${dayTestName}\n${dayTriggerOn}\n${dayJobs}\n`;
+
+    if (testEntries.length) {
+      info(`Week ${week} Day ${paddedDay}:`);
+
+      testEntries.forEach((entry, index) => {
+        info(`  ${entry.name}`);
+        const finalFolder = `user/week${week}/exercises/day${paddedDay}/${entry.user_folder}/`;
+        const job = `  ${entry.user_folder}_${index}:\n\n    runs-on: ubuntu-latest\n\n    steps:\n      - name: Checkout code\n        uses: actions/checkout@v3\n`;
+
+        // TODO: Check if entry.user_folder job exists, add more steps to it and don't create a new job.
+        let steps = '';
+        if (entry.type === 'exist') {
+          steps += `\n      - name: "${entry.name} > Check solution files existence"`;
+          steps += `\n        uses: andstor/file-existence-action@v2`;
+          steps += `\n        with:`;
+          steps += `\n          files: "${entry.files.map(file => `${finalFolder}${file}`).join(", ")}"`;
+          steps += `\n          fail: true`;
+          steps += `\n        if:`;
+          steps += `\n          contains(github.event_name, 'push') && startsWith(github.event_path, '${finalFolder}')`;
+          steps += `\n        continue-on-error: true`
+          steps += `\n`;
+        } else if (entry.type === 'js') {
+          steps += ``;
+        }
+
+        dayYamlContent += `${job}${steps}\n`;
+      });
+
+      try {
+        if (dayTestFilePathExists) {
+          warn(`File ${dayTestFile} already exists.`);
+        }
+    
+        if (global.sgenConfig.debug) {
+          console.log(dayYamlContent);
+        }
+        yaml.parse(dayYamlContent);
+        info(`Writing to file: ${dayTestFile}`);
+        fs.writeFileSync(dayTestFilePath, dayYamlContent, "utf-8");
+      } catch (error) {
+        console.log(`Error while writing YAML test file: ${dayTestFile}`);
+        console.log(error);
+      }
+    } else {
+      warn(`No Test entries found for Week ${week} Day ${paddedDay}`);
+    }
+
+  });
+}
+
 function generateWeeklyTestsFromWeeklyData({ weeklyData, title }){
 
   weeklyData.forEach(dailyData =>{
@@ -445,9 +531,13 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
 
     if (global.sgenConfig.tests) {
       // Generate yaml tests:
-      const test = generateWeeklyTestsFromWeeklyData({
+      // const test = generateWeeklyTestsFromWeeklyData({
+      //   weeklyData, title
+      // });
+      // Generate a yaml test for each day:
+      const test = generateTestsFromWeeklyData({
         weeklyData, title
-      });
+      })
     }
 
   } catch(e) {
@@ -462,6 +552,7 @@ module.exports = {
   parseWeeklyPatterns,
   copyWeeklyMediaAssets,
   createWeeklyContentFromYaml,
+  generateTestsFromWeeklyData,
   generateWeeklyTestsFromWeeklyData,
   generateWeeklyProgressSheetFromWeeklyData
 }
