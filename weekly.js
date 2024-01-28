@@ -265,22 +265,21 @@ function generateWeeklyTestsFromWeeklyData({ weeklyData, title }){
         const testName = `Week ${week} - Day ${day} ${title} | ${entry.name}`;
         const triggerOn = `on:\n  push:\n    branches:\n      - 'main'\n    paths:\n      - ${finalFolder}**`;
         const jobs = `jobs:\n  ${entry.user_folder}:\n\n    runs-on: ubuntu-latest\n\n    `;
-        let steps = 'steps:\n      - name: Checkout code\n        uses: actions/checkout@v3\n';
+        const firstStep = 'steps:\n      - name: Checkout code\n        uses: actions/checkout@v3\n';
+        let steps = '';
         if (entry.type === 'exist') {
-          steps += `\n      - name: "${entry.name} > Check solution files existence"\n        uses: andstor/file-existence-action@v2\n        with:\n          files: "${entry.files.map(file => `${finalFolder}${file}`).join(", ")}"\n          fail: true`;
+          steps += `\n      - name: "${entry.name} > Check solution files existence"\n        uses: andstor/file-existence-action@v2\n        with:\n          files: "${entry.files.map(file => `${finalFolder}${file}`).join(", ")}"\n          fail: true\n`;
         } else if (entry.type === 'js') {
           // TODO: Add configuration for JS tests (maybe will need more parameters on the WDX:META:TESTS comment) plus some existence checks
           steps += ``;
         }
-        const yamlContent = `name: "${testName}"\n${triggerOn}\n${jobs}${steps}`;
+        const yamlContent = `name: "${testName}"\n${triggerOn}\n${jobs}${firstStep}${steps}`;
 
         const workflowsFolder = path.join(".github", "workflows");
         const workflowsFolderExists = fs.existsSync(workflowsFolder);
 
         try {
 
-          yaml.parse(yamlContent);
-          
           if ( workflowsFolderExists ) {
 
             warn(`Folder ${workflowsFolder} already exists.`);
@@ -293,11 +292,29 @@ function generateWeeklyTestsFromWeeklyData({ weeklyData, title }){
           }
   
           const testFilename = `w${week}-d${paddedDay}-${entry.user_folder}.yaml`;
-          info(`Writing to file ${testFilename}:`);
-          fs.writeFileSync(
-            path.join(workflowsFolder, testFilename),
-            yamlContent, "utf-8"
-          );
+          const testFilePath = path.join(workflowsFolder, testFilename);
+          const testFilePathExists = fs.existsSync(testFilePath);
+
+          if (testFilePathExists) {
+            //  testFilename already exists so will append the new steps.
+            yaml.parse(fs.readFileSync(testFilePath, 'utf-8') + steps);
+            info(`Appending to file ${testFilename}.`);
+            fs.writeFileSync(
+              testFilePath,
+              steps, {
+                encoding: "utf-8",
+                flag: "a"
+              }
+            )
+          } else {
+            //  testFilename doesn't exist so will create the whole file.
+            yaml.parse(yamlContent);
+            info(`Writing to file ${testFilename}.`);
+            fs.writeFileSync(
+              testFilePath,
+              yamlContent, "utf-8"
+            );           
+          }
 
         } catch (e) {
 
