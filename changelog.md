@@ -2,6 +2,11 @@
 
 ## Branch: v2
 
+### 30/01/2024
+
+= If there multiple `SGEN:META:TESTS` tags with the same `user_folder` variable, `generateTestsFromWeeklyData` will add steps to the same workflow job, instead of creating separate ones.
+    - Still need to test the behavior of created tests via GitHub Actions
+
 ### 29/01/2024
 
 - Added feature to append new steps to an already existing job on the `.yaml` files created by function `generateWeeklyTestsFromWeeklyData({ weeklyData, title })`

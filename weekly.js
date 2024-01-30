@@ -284,25 +284,32 @@ function generateTestsFromWeeklyData({ weeklyData, title }){
       testEntries.forEach((entry, index) => {
         info(`  ${entry.name}`);
         const finalFolder = `user/week${week}/exercises/day${paddedDay}/${entry.user_folder}/`;
-        const job = `  ${entry.user_folder}_${index}:\n\n    runs-on: ubuntu-latest\n\n    steps:\n      - name: Checkout code\n        uses: actions/checkout@v3\n`;
+        const job = `  ${entry.user_folder}:\n\n    runs-on: ubuntu-latest\n\n    steps:\n      - name: Checkout code\n        uses: actions/checkout@v3\n`;
 
-        // TODO: Check if entry.user_folder job exists, add more steps to it and don't create a new job.
         let steps = '';
-        if (entry.type === 'exist') {
+        if (entry.type === 'exist') { // file existence test
           steps += `\n      - name: "${entry.name} > Check solution files existence"`;
           steps += `\n        uses: andstor/file-existence-action@v2`;
           steps += `\n        with:`;
           steps += `\n          files: "${entry.files.map(file => `${finalFolder}${file}`).join(", ")}"`;
           steps += `\n          fail: true`;
-          steps += `\n        if:`;
-          steps += `\n          contains(github.event_name, 'push') && startsWith(github.event_path, '${finalFolder}')`;
-          steps += `\n        continue-on-error: true`
+          // following if check does not check if indeed there were changes in the specified finalFolder (child of the path directory mentioned on dayTriggerOn variable)
+          // steps += `\n        if:`;
+          // steps += `\n          contains(github.event_name, 'push') && startsWith(github.event_path, '${finalFolder}')`;
+          steps += `\n        continue-on-error: true` // maybe this will just make all workflows successful. Will have to test through GitHub
           steps += `\n`;
-        } else if (entry.type === 'js') {
+        } else if (entry.type === 'js') { // javascript exercise test
           steps += ``;
         }
 
-        dayYamlContent += `${job}${steps}\n`;
+        const sameJobIndex = dayYamlContent.indexOf(job);
+        if (sameJobIndex > 0) {
+          // entry.user_folder job exists, no need to create a separate job, just add more steps to it.
+          dayYamlContent = dayYamlContent.substring(0, sameJobIndex + job.length) + steps + dayYamlContent.substring(sameJobIndex + job.length);
+        } else {
+          // new job with its steps is going to be added
+          dayYamlContent += `${job}${steps}\n`;
+        }
       });
 
       try {
