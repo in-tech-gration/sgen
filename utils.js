@@ -272,6 +272,8 @@ function parseWdxMetaTests({ token }){
 
 function createExerciseFolders({ weeklyData, title, numOfWeek }){
 
+  const isDryRunMode = global.sgenConfig.dryRun;
+
   weeklyData.forEach((dailyData, idx) =>{
 
     const paddedDay = String(idx+1).padStart(2,"0");
@@ -287,14 +289,28 @@ function createExerciseFolders({ weeklyData, title, numOfWeek }){
     // Because 'user/weekXX/' folder is re-created at the beginning of SGEN, the check below will always be true.
     // Leaving it for safety.
     if ( !doesWeeklyUserFolderExist ) {
-      fs.mkdirSync(weeklyUserFolder, { recursive: true });
-      console.log(`Folder '${weeklyUserFolder}' created.`);
-    }
-    fs.writeFileSync(
-      path.join(weeklyUserFolder, ".gitkeep"), 
-      "", "utf-8"
-    );
+      if ( isDryRunMode ){
+        
+        console.log(`[DRY-RUN MODE] Folder '${weeklyUserFolder}' does not exist. Creating it...`);
 
+      } else {
+        fs.mkdirSync(weeklyUserFolder, { recursive: true });
+        console.log(`Folder '${weeklyUserFolder}' created.`);
+      }
+    }
+
+    if ( isDryRunMode ){
+
+      console.log(`[DRY-RUN MODE] Creating .gitkeep file in '${weeklyUserFolder}'.`);
+
+    } else {
+
+      fs.writeFileSync(
+        path.join(weeklyUserFolder, ".gitkeep"), 
+        "", "utf-8"
+      );
+
+    }
 
   })
 }
