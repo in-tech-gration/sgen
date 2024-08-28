@@ -153,6 +153,8 @@ function copyWeeklyMediaAssets({ weeklyData, title }){
 // Generate progress.draft.*.csv files from weekly content object
 function generateWeeklyProgressSheetFromWeeklyData({ weeklyData, title }){
 
+  const isDryRunMode = global.sgenConfig.dryRun;
+
   const csvHeaders = `Week,Day,Concept,Task,Level,Confidence,Completed,Instructions`;
   let csv = csvHeaders;
   
@@ -210,9 +212,17 @@ function generateWeeklyProgressSheetFromWeeklyData({ weeklyData, title }){
       const userProgressFolderExists = fs.existsSync(userProgressFolder)
       
       if ( !userProgressFolderExists ) {
-        
-        fs.mkdirSync(userProgressFolder, { recursive: true });
-        info(`Folder '${userProgressFolder}' created.`);
+
+        if( isDryRunMode ){
+
+          console.log(`[DRY-RUN MODE] Creating user progress folder: '${userProgressFolder}'.`);
+
+        } else {
+
+          fs.mkdirSync(userProgressFolder, { recursive: true });
+          info(`Folder '${userProgressFolder}' created.`);
+
+        }
         
       }
       
@@ -226,12 +236,19 @@ function generateWeeklyProgressSheetFromWeeklyData({ weeklyData, title }){
         return;
       }
 
-      console.log("Writing to file " + progressFilename + ":");
+      if ( isDryRunMode ){
+        
+        console.log(`[DRY-RUN MODE] Writing to file '${progressFilename}'.`);
+        
+      } else {
+        
+        console.log(`Writing to file ${progressFilename}:`);
+        fs.writeFileSync(
+          path.join( userProgressFolder, progressFilename ),
+          dailyCSV, "utf-8"
+        );
 
-      fs.writeFileSync(
-        path.join( userProgressFolder, progressFilename ),
-        dailyCSV, "utf-8"
-      );
+      }
       
     } catch(e){
 
@@ -244,6 +261,8 @@ function generateWeeklyProgressSheetFromWeeklyData({ weeklyData, title }){
 }
 
 function generateWeeklyTestsFromWeeklyData({ weeklyData, title }){
+
+  const isDryRunMode = global.sgenConfig.dryRun;
 
   weeklyData.forEach(dailyData =>{
   
@@ -289,17 +308,32 @@ function generateWeeklyTestsFromWeeklyData({ weeklyData, title }){
   
           } else {
   
-            fs.mkdirSync(workflowsFolder, { recursive: true });
-            info(`Folder ${workflowsFolder} created.`);
+            if ( isDryRunMode ){
+
+              console.log(`[DRY-RUN MODE] Folder ${workflowsFolder} created.`);
+
+            } else {
+              fs.mkdirSync(workflowsFolder, { recursive: true });
+              info(`Folder ${workflowsFolder} created.`);
+            }
   
           }
   
           const testFilename = `w${week}-d${paddedDay}-${entry.user_folder}.yaml`;
-          info(`Writing to file ${testFilename}:`);
-          fs.writeFileSync(
-            path.join(workflowsFolder, testFilename),
-            yamlContent, "utf-8"
-          );
+          
+          if ( isDryRunMode ){
+            
+            console.log(`[DRY-RUN MODE] Writing to file ${testFilename}.`);
+            
+          } else {
+            
+            info(`Writing to file ${testFilename}:`);
+            fs.writeFileSync(
+              path.join(workflowsFolder, testFilename),
+              yamlContent, "utf-8"
+            );
+
+          }
 
         } catch (e) {
 
