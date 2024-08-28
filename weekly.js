@@ -367,10 +367,9 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
     
     if ( isDryRunMode ){
       console.log(`[DRY-RUN MODE] Deleting the contents of folder '${weeklyFolder}' excluding the following: WEEKEND.md`);
-    } else {
-      // fs.rmSync(weeklyFolder, { recursive: true });
-      rmSyncExclude(weeklyFolder, ["WEEKEND.md"]); // Selective rm excluding files/folders inside the 2nd argument
     }
+    // fs.rmSync(weeklyFolder, { recursive: true });
+    rmSyncExclude(weeklyFolder, ["WEEKEND.md"]); // Selective rm excluding files/folders inside the 2nd argument
     
   } else {
 

@@ -224,20 +224,32 @@ function createFrontMatterMarkdownFromObject( fmObj ){
 }
 // Thanks ChatGPT!
 function rmSyncExclude(dir, excludeItems) {
+
+  const isDryRunMode = global.sgenConfig.dryRun;
+
   fs.readdirSync(dir).forEach((item) => {
     const itemPath = path.join(dir, item);
 
     if (excludeItems.includes(item)) {
+      console.log(`[DRY-RUN MODE] Skip excluded item from deletion: '${item}'`);
       // Skip excluded items
       return;
     }
 
     if (fs.statSync(itemPath).isDirectory()) {
       // Recursively remove files and subdirectories
-      rmSyncExclude(itemPath, excludeItems);
+      if ( isDryRunMode ){
+        console.log(`[DRY-RUN MODE] Recursively remove files and subdirectories: '${itemPath}'`);
+      } else {
+        rmSyncExclude(itemPath, excludeItems);
+      }
     } else {
-      // Remove files
-      fs.rmSync(itemPath);
+      if ( isDryRunMode ){
+        console.log(`[DRY-RUN MODE] Recursively remove files: '${itemPath}'`);
+      } else {
+        // Remove files
+        fs.rmSync(itemPath);
+      }
     }
   });
 
