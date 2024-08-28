@@ -352,12 +352,21 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
   if ( weeklyUserFolderExists ) {
     
     warn(`User Folder '${weeklyUserFolder}' already exists. Deleting it to begin from scratch.`);
-    fs.rmSync(weeklyUserFolder, { recursive: true });
+
+    if ( isDryRunMode ){
+      console.log(`[DRY-RUN MODE] Recursively deleting user folder '${weeklyUserFolder}'.`);
+    } else {
+      fs.rmSync(weeklyUserFolder, { recursive: true });
+    }
 
   } 
 
-  fs.mkdirSync(weeklyUserFolder);
-  info(`User Folder '${weeklyUserFolder}' created.`);
+  if ( isDryRunMode ){
+    console.log(`[DRY-RUN MODE] Creating user folder '${weeklyUserFolder}' from scratch.`);
+  } else {
+    fs.mkdirSync(weeklyUserFolder);
+    info(`User Folder '${weeklyUserFolder}' created.`);
+  }
 
   const textContent = fs.readFileSync( markdownDraftTemplate, "utf-8");
 
