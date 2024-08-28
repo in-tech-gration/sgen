@@ -177,14 +177,20 @@ function getResources(){
 }
 function appendObjectToResources( obj ){
 
-  const resourcesDir = path.join( __dirname, "..", "..", "resources/" );
+  const isDryRunMode  = global.sgenConfig.dryRun;
+  const resourcesDir  = path.join( __dirname, "..", "..", "resources/" );
   const resourcesPath = path.join( resourcesDir, "resources.json");
   const resourcesText = getResourcesContent()
-  const json = JSON.parse(resourcesText)
-  const key = Object.keys(obj)[0];
+  const json          = JSON.parse(resourcesText)
+  const key           = Object.keys(obj)[0];
   json.resources[key] = obj[key];
+
   try {
-    fs.writeFileSync(resourcesPath, JSON.stringify(json, null, "  "), "utf-8");
+    if ( isDryRunMode ){
+      // Console.log...
+    } else {
+      fs.writeFileSync(resourcesPath, JSON.stringify(json, null, "  "), "utf-8");
+    }
   } catch(e){
     console.log(e);
   }
