@@ -1,5 +1,6 @@
 const yaml = require('yaml');
 const fs   = require("node:fs");
+const fse  = require('fs-extra');
 const path = require("node:path");
 const { parse, stringify } = require("csv/sync");
 const marked = require("marked");
@@ -347,11 +348,50 @@ function generateWeeklyTestsFromWeeklyData({ weeklyData, title }){
 
 }
 
+/**
+ * 
+ * @param {*} headerImage 
+ * @param {*} weeklyFolder 
+ * @description Copy Weekly Header image to curriculum/ if it is available in the YAML file:
+ * @returns 
+ */
+function copyHeaderImage( headerImage, weeklyFolder ){
+
+  if ( !headerImage ){
+    return false;
+  }
+  const isDryRunMode    = global.sgenConfig.dryRun;
+  const headerImagePath = path.join("curriculum", "schedule", headerImage);
+
+  if ( fs.existsSync(headerImagePath) ){
+
+    const targetCurriculumAssetsPath = path.join( weeklyFolder, "assets" );
+
+    if ( isDryRunMode ){
+      
+      console.log(`[DRY-RUN MODE] Copying header image from '${headerImagePath}' to '${path.join( targetCurriculumAssetsPath, path.basename(headerImagePath) )}'`);
+
+    } else {
+
+      fse.copySync(
+        headerImagePath,
+        path.join( targetCurriculumAssetsPath, path.basename(headerImagePath) ),
+        { overwrite: true }
+      );
+      
+    }
+
+  }
+
+}
+  
+
 function createWeeklyContentFromYaml({ configYaml, filename }) {
 
   const { 
     input: markdownDraftTemplate,
     daily_input,
+    header_image,
     schedule,
     title 
   } = yaml.parse(configYaml);
@@ -459,6 +499,9 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
     } else {
       fs.writeFileSync(weeklyIndexMarkdown, outputContent, "utf-8");
     }
+
+    // Copy Weekly Header image to curriculum/ if it is available in the YAML file:
+    copyHeaderImage(header_image, weeklyFolder);
 
     // Copy Media Assets from Module folder to curriculum/ 
     daysEntries.forEach( dailyEntry =>{
