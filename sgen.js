@@ -45,6 +45,7 @@ function createContentFromYaml({ configYaml, filename }) {
 
   const { input, output, daily_input, schedule, title } = yaml.parse(configYaml);
   const textContent        = fs.readFileSync(input, "utf-8");
+  const isDryRunMode       = global.sgenConfig.dryRun;
 
   // Parse markdown and separate Frontmatter and main content:
   const { content, data: fm, orig } = matter(textContent);
@@ -67,72 +68,79 @@ function createContentFromYaml({ configYaml, filename }) {
   
     let newRaw = textContent
     .replace(titleRegex, title)
-    
     // .replace(dateUpdatedRegex, DDMMYYYY)
     // .replace(includesRegex, replaceInclude());
     .replace(moduleRegex, replaceModule);
+
+    if ( isDryRunMode ){
+
+      console.log(`[DRY-RUN MODE] Executing regex on title: ${titleRegex}`);
+      console.log(`[DRY-RUN MODE] Executing regex on module: ${moduleRegex}`);
+      console.log(`[DRY-RUN MODE] Writing 'newRaw' raw text content to ${output}`);
+
+    } else {
+
+      // const dailyMarkdownTokens = marked.lexer(dailyDraftTemplate);
+      fs.writeFileSync(output, newRaw, "utf-8");
   
-    
-  // const dailyMarkdownTokens = marked.lexer(dailyDraftTemplate);
-  fs.writeFileSync(output, newRaw, "utf-8");
-
-  //   const daysEntries = Object.entries(schedule.days);
-  //   const weeklyData = daysEntries
-  //   .map( entry =>{
-  //     return parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek });
-  //   });
-    
-  //   let weeklyContent = weeklyData
-  //   .filter(Boolean)
-  //   .map( data => data.content )
-  //   .join("");
-  //   // Parse markdown tokens:
-  //   const markdownTokens = marked.lexer(content);
-  //   let outputContent = "";
-  //   markdownTokens.forEach( token =>{
-
-  //     if ( token.raw ){
-
-  //       const parsedTokenRaw = parseWeeklyPatterns({ 
-  //         raw: token.raw, 
-  //         numOfWeek,
-  //         weeklyContent,
-  //         title
-  //       }); 
-
-  //       outputContent += parsedTokenRaw;
-
-  //     } else {
-
-  //       outputContent += token.raw;
-
-  //     }
-  //   });
+      //   const daysEntries = Object.entries(schedule.days);
+      //   const weeklyData = daysEntries
+      //   .map( entry =>{
+      //     return parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek });
+      //   });
+        
+      //   let weeklyContent = weeklyData
+      //   .filter(Boolean)
+      //   .map( data => data.content )
+      //   .join("");
+      //   // Parse markdown tokens:
+      //   const markdownTokens = marked.lexer(content);
+      //   let outputContent = "";
+      //   markdownTokens.forEach( token =>{
   
-  //   const fmString = getFrontMatterStringFromObject(fm);
+      //     if ( token.raw ){
   
-  //   outputContent = parseWeeklyPatterns({ raw: fmString, numOfWeek, title }) + outputContent;
+      //       const parsedTokenRaw = parseWeeklyPatterns({ 
+      //         raw: token.raw, 
+      //         numOfWeek,
+      //         weeklyContent,
+      //         title
+      //       }); 
   
-  //   const weeklyIndexMarkdown = path.join( weeklyFolder, "index.md" );
-  //   fs.writeFileSync(weeklyIndexMarkdown, outputContent, "utf-8");
-
-  //   // Copy Media Assets from Module folder to curriculum/
-  //   copyWeeklyMediaAssets({ weeklyData, title });
-
-  //   // Generate /user/weekXX/exercises/... folders
-  //   createExerciseFolders({
-  //     weeklyData, title, numOfWeek
-  //   }); 
-
-  //   // Generate progress sheets:
-  //   const csv = generateWeeklyProgressSheetFromWeeklyData({ 
-  //     weeklyData, title 
-  //   });
-
-  //   // Generate yaml tests:
-  //   const test = generateWeeklyTestsFromWeeklyData({
-  //     weeklyData, title
-  //   });
+      //       outputContent += parsedTokenRaw;
+  
+      //     } else {
+  
+      //       outputContent += token.raw;
+  
+      //     }
+      //   });
+      
+      //   const fmString = getFrontMatterStringFromObject(fm);
+      
+      //   outputContent = parseWeeklyPatterns({ raw: fmString, numOfWeek, title }) + outputContent;
+      
+      //   const weeklyIndexMarkdown = path.join( weeklyFolder, "index.md" );
+      //   fs.writeFileSync(weeklyIndexMarkdown, outputContent, "utf-8");
+  
+      //   // Copy Media Assets from Module folder to curriculum/
+      //   copyWeeklyMediaAssets({ weeklyData, title });
+  
+      //   // Generate /user/weekXX/exercises/... folders
+      //   createExerciseFolders({
+      //     weeklyData, title, numOfWeek
+      //   }); 
+  
+      //   // Generate progress sheets:
+      //   const csv = generateWeeklyProgressSheetFromWeeklyData({ 
+      //     weeklyData, title 
+      //   });
+  
+      //   // Generate yaml tests:
+      //   const test = generateWeeklyTestsFromWeeklyData({
+      //     weeklyData, title
+      //   });
+    }
 
   } catch(e) {
 
@@ -173,12 +181,14 @@ function init() {
     .usage('-V/--version | -p/--patterns | -d/--debug <configYamlPath> | <configYamlPath>')
     .version(`v${packageJSON.version}`)
     .option('-d, --debug', 'output extra debugging.')
-    .option('-p, --patterns', 'display available SGEN patterns.');
+    .option('-p, --patterns', 'display available SGEN patterns.')
+    .option('-r, --dry-run', 'run in dry-run mode (simulation).');
 
   program.parse();
   const options = program.opts();
-  
-  if (options.debug) global.sgenConfig.debug = true;
+
+  if (options.debug) global.sgenConfig.debug   = true;
+  if (options.dryRun) global.sgenConfig.dryRun = true;
   
   // DISPLAY AVAILABLE TEMPLATE PLACEHOLDERS (PATTERNS) & EXIT:
   if (options.patterns) {
@@ -220,6 +230,7 @@ function init() {
     }  
 
     const filename = path.basename(configYamlPath, path.extname(configYamlPath));
+    // filename: week01 <= week01.yaml, quickstart <= quickstart.yaml, etc.
 
     // e.g. curriculum/schedule/week04.yaml
     if ( filename.indexOf("week") === 0 ){
