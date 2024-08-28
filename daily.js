@@ -324,17 +324,27 @@ function copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder }){
 
   const sourceDailyAssetsPath = path.join( MODULES_FOLDER, dailyModuleFolder, "assets" ); 
   const targetCurriculumAssetsPath = path.join( weeklyFolder, "assets" );
+  const isDryRunMode = global.sgenConfig.dryRun;
 
   try {
-    fse.copySync(
-      sourceDailyAssetsPath,
-      targetCurriculumAssetsPath,
-      { overwrite: true }
-    );
 
-    console.log(
-      `Successfully copied ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`
-    );
+    if ( isDryRunMode ){
+
+      console.log(`[DRY-RUN MODE] Copying '${sourceDailyAssetsPath}' => '${targetCurriculumAssetsPath}'`);
+
+    } else {
+
+      fse.copySync(
+        sourceDailyAssetsPath,
+        targetCurriculumAssetsPath,
+        { overwrite: true }
+      );
+  
+      console.log(
+        `Successfully copied ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`
+      );
+
+    }
 
   } catch (err) {
 
@@ -354,17 +364,27 @@ function copyDailyExercises({ weeklyFolder, dailyModuleFolder }){
 
   const sourceDailyAssetsPath = path.join( MODULES_FOLDER, dailyModuleFolder, "exercises" ); 
   const targetCurriculumAssetsPath = path.join( weeklyFolder, "exercises" );
+  const isDryRunMode = global.sgenConfig.dryRun;
 
   try {
-    fse.copySync(
-      sourceDailyAssetsPath,
-      targetCurriculumAssetsPath,
-      { overwrite: true }
-    );
 
-    console.log(
-      `Successfully copied ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`
-    );
+    if ( isDryRunMode ){
+
+      console.log(`[DRY-RUN MODE] Copying '${sourceDailyAssetsPath}' => '${targetCurriculumAssetsPath}'`);
+
+    } else {
+
+      fse.copySync(
+        sourceDailyAssetsPath,
+        targetCurriculumAssetsPath,
+        { overwrite: true }
+      );
+  
+      console.log(
+        `Successfully copied ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`
+      );
+
+    }
 
   } catch (err) {
 

@@ -421,8 +421,12 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
     if ( !fs.existsSync(weeklyIndexMarkdown) ) {
       console.log("Could not find:", weeklyIndexMarkdown);
     }
-    fs.writeFileSync(weeklyIndexMarkdown, outputContent, "utf-8");
-    
+    if ( isDryRunMode ){
+      console.log(`[DRY-RUN MODE] Writing output content to '${weeklyIndexMarkdown}'`);
+    } else {
+      fs.writeFileSync(weeklyIndexMarkdown, outputContent, "utf-8");
+    }
+
     // Copy Media Assets from Module folder to curriculum/ 
     daysEntries.forEach( dailyEntry =>{
       
