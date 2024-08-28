@@ -142,6 +142,23 @@ function createContentFromYaml({ configYaml, filename }) {
 
 }
 
+/**
+ * @description Display all the available template placeholders (patterns) that can be used in the markdown content and exit.
+ */
+function displayPatterns(){
+
+  const regexEntries = Object.entries(templateRegexes);
+  console.log(`Available patterns:`);
+  console.log(`===================`);
+  regexEntries.forEach(([key,value])=>{
+    if ( key.endsWith("Doc" ) ){
+      console.log( value );
+    }
+  })
+  process.exit();
+
+}
+
 function init() {
 
   let configYamlPath;
@@ -163,16 +180,9 @@ function init() {
   
   if (options.debug) global.sgenConfig.debug = true;
   
+  // DISPLAY AVAILABLE TEMPLATE PLACEHOLDERS (PATTERNS) & EXIT:
   if (options.patterns) {
-    const regexEntries = Object.entries(templateRegexes);
-    console.log(`Available patterns:`);
-    console.log(`===================`);
-    regexEntries.forEach(([key,value])=>{
-      if ( key.endsWith("Doc" ) ){
-        console.log( value );
-      }
-    })
-    process.exit();
+    displayPatterns();
   }
 
   // After parsing, remaining arguments will be stored at program.args array.
