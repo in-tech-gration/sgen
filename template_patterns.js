@@ -16,6 +16,9 @@ const templateRegexes = {
   weekRegex:          /\{\{\s?SGEN:\s?WEEK\s?\}\}/gi,
   weekRegexDoc:       "SGEN:WEEK",
 
+  headerImageRegex:          /\{\{\s?SGEN:\s?HEADER_IMAGE\s?\}\}/gi,
+  headerImageRegexDoc:       "SGEN:HEADER_IMAGE",
+
   weekNumRegex:       /\{\{\s?SGEN:\s?WEEK_NUM\s?\}\}/gi,
   weekNumRegexDoc:    "SGEN:WEEK_NUM",
 

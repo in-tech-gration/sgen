@@ -54,7 +54,7 @@ function weeklySuggestionsGuard({ match, group1, string, day,numOfWeek }){
 }
 
 // Mini-parsers: (to be moved elsewhere and unit-tested)
-function parseWeeklyPatterns({ raw, numOfWeek, weeklyContent, title }){
+function parseWeeklyPatterns({ raw, numOfWeek, weeklyContent, header_image, title }){
 
   const {
 
@@ -64,12 +64,14 @@ function parseWeeklyPatterns({ raw, numOfWeek, weeklyContent, title }){
     dateUpdatedRegex,
     weeklyContentRegex,
     includesRegex,
+    headerImageRegex,
     moduleRegex
 
   } = templateRegexes;
 
   const date = new Date();
   const DDMMYYYY = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}` 
+  const headerImageEl = header_image => `<img src="assets/${path.basename(header_image)}" />`
 
   let newRaw = raw
   .replace(weekNumRegex, `${String(numOfWeek).padStart(2,"0")}`)
@@ -87,6 +89,14 @@ function parseWeeklyPatterns({ raw, numOfWeek, weeklyContent, title }){
       } 
   }))
   .replace(moduleRegex, replaceModule );
+
+  // Display header image if available in YAML:
+  if ( header_image ){
+    newRaw = newRaw.replace(
+      headerImageRegex,
+      headerImageEl(header_image)
+    );
+  }
 
   return newRaw;
 }
@@ -472,6 +482,7 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
 
         const parsedTokenRaw = parseWeeklyPatterns({ 
           raw: token.raw, 
+          header_image,
           numOfWeek,
           weeklyContent,
           title
