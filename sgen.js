@@ -44,7 +44,12 @@ function getModule({}){
 function createContentFromYaml({ configYaml, filename }) {
 
   const { input, output, daily_input, schedule, title } = yaml.parse(configYaml);
-  const textContent        = fs.readFileSync(input, "utf-8");
+  let textContent;
+  try {
+    textContent = fs.readFileSync(input, "utf-8");
+  } catch (error) {
+    return console.log(`Error: could not open filepath: ${input}. This was provided through the 'input' YAML property. Please check whether the file exists and it's correct.`);    
+  }
   const isDryRunMode       = global.sgenConfig.dryRun;
 
   // Parse markdown and separate Frontmatter and main content:
