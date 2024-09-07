@@ -214,7 +214,13 @@ function init() {
   }
 
   const configYaml = fs.readFileSync(configYamlPath, "utf-8");
-  const { input, output, Syllabus } = yaml.parse(configYaml);
+  const parsedYaml = yaml.parse(configYaml);
+
+  if ( !parsedYaml ){
+    return console.log(`Error parsing ${configYamlPath} (null). File probably empty?`);
+  }
+
+  const { input, output, Syllabus } = parsedYaml;
 
   try {
 
