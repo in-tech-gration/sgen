@@ -86,7 +86,15 @@ function createContentFromYaml({ configYaml, filename }) {
     } else {
 
       // const dailyMarkdownTokens = marked.lexer(dailyDraftTemplate);
-      fs.writeFileSync(output, newRaw, "utf-8");
+      if (!output){
+        return console.log(`Error: Missing output path in YAML file.`)        
+      }
+
+      try {
+        fs.writeFileSync(output, newRaw, "utf-8");
+      } catch (error) {
+        return console.log(`Error: could not write to file: ${output}.`)        
+      }
   
       //   const daysEntries = Object.entries(schedule.days);
       //   const weeklyData = daysEntries
@@ -226,6 +234,13 @@ function init() {
   }
 
   const { input, output, Syllabus } = parsedYaml;
+
+  if ( !input ){
+    console.log(`Error parsing ${configYamlPath}. Missing required property 'input' which should point to a template Markdown file (.md).`);
+    return console.log(`Example:
+    input: curriculum/curriculum.draft.md  
+    `);
+  }
 
   try {
 
