@@ -4,6 +4,8 @@
 
   ![](./assets/header.png)
 
+  _(User to create [WDX180](https://in-tech-gration.github.io/WDX-180/))_
+
   **Usage:**
 
   `sgen curriculum.yaml`
