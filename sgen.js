@@ -217,6 +217,7 @@ function init() {
   }
 
   configYamlPath = argument;
+  const fileExtension = path.extname(configYamlPath);
   const weekNum = parseInt(argument, 10);
   if ( typeof weekNum === "number" && !Number.isNaN(weekNum) ){
     configYamlPath = path.join(
@@ -226,8 +227,42 @@ function init() {
     );
   }
 
-  const configYaml = fs.readFileSync(configYamlPath, "utf-8");
-  const parsedYaml = yaml.parse(configYaml);
+  let configYaml;
+  let parsedYaml;
+
+  try {
+
+    let fullConfigYamlPath = configYamlPath;
+
+    if ( fileExtension === "" ){
+      console.log(`Input file must have a .yaml or .yml extension but found ${configYamlPath}. Trying with ${configYamlPath}.yaml and ${configYamlPath}.yml.`);
+
+      if ( fs.existsSync(`${configYamlPath}.yaml`) ){
+
+        fullConfigYamlPath = configYamlPath + ".yaml";
+        console.log(`Parsing ${configYamlPath}.yaml`);
+
+      } else if ( fs.existsSync(`${configYamlPath}.yml`) ){
+
+        fullConfigYamlPath = configYamlPath + ".yml";
+        console.log(`Parsing ${configYamlPath}.yml`);
+
+      } else {
+
+        throw new Error(`Could not load ${configYamlPath}, ${configYamlPath}.yaml or ${configYamlPath}.yml.`)
+
+      }
+
+    }
+    configYaml = fs.readFileSync(fullConfigYamlPath, "utf-8");
+    parsedYaml = yaml.parse(configYaml);
+
+  } catch (error) {
+
+    console.log("E", error.message, configYaml, parsedYaml);
+    process.exit();
+    
+  }
 
   if ( !parsedYaml ){
     return console.log(`Error parsing ${configYamlPath} (null). File probably empty?`);
