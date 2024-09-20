@@ -2,6 +2,8 @@
 
   Syllabus Generation Tool
 
+  ![](./assets/header.png)
+
   **Usage:**
 
   `sgen curriculum.yaml`
