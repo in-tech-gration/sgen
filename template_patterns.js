@@ -68,6 +68,9 @@ const templateRegexes = {
   moduleReadRegex:    /( *?)\{\{\s?SGEN:\s?MODULE_READ:(.*)\s?\}\}/gi,
   moduleReadRegexDoc: '- [Read: **frontMatter.title**](../modules/path/to/index.md){:target="_blank"}',
 
+  moduleLinkRegex:    /( *?)\{\{\s?SGEN:\s?MODULE_LINK:(.*)\s?\}\}/gi,
+  moduleLinkRegexDoc: '[**frontMatter.title**](../modules/path/to/index.md){:target="_blank"}',
+
   dateUpdatedRegex:   /\{\{\s?SGEN:\s?DATE_UPDATED\s?\}\}/gi,
   dateUpdatedRegexDoc: "DD/MM/YYYY",
 

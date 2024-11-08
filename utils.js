@@ -123,6 +123,17 @@ function replaceModule( match, lineSpaces, modulePath, offset, string ){
 
 }
 
+function replaceModuleLink( match, lineSpaces, modulePath, offset, string ) {
+  
+  // console.log({ match, lineSpaces, modulePath, offset });
+  const fullPath = path.join(MODULES_FOLDER, modulePath.trim());
+  const textContent = fs.readFileSync(fullPath, "utf-8");
+  const { content, data: fm, orig } = matter(textContent);
+  
+  return ` [**${fm.title}**](../modules/${modulePath.trim()}){:target="_blank"}`;
+
+}
+
 /** function replaceModuleRead( replaceArgs ) returns string
  * REPLACES: 
  *  {{ SGEN:MODULE_READ:path/to/index.md }} 
@@ -326,5 +337,6 @@ module.exports = {
   parseWdxMetaTests,
   createExerciseFolders,
   replaceModule,
-  replaceModuleRead
+  replaceModuleRead,
+  replaceModuleLink
 }
