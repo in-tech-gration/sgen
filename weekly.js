@@ -410,48 +410,7 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
   const weeklyUserFolder       = path.join("user", filename);;
   const weeklyUserFolderExists = fs.existsSync(weeklyUserFolder);
   const isDryRunMode           = global.sgenConfig.dryRun;
-
-  if ( weeklyFolderExists ) {
-
-    warn(`Folder '${weeklyFolder}' already exists. (Selectively) deleting it to begin from scratch.`);
-    
-    if ( isDryRunMode ){
-      console.log(`[DRY-RUN MODE] Deleting the contents of folder '${weeklyFolder}' excluding the following: WEEKEND.md`);
-    }
-    // fs.rmSync(weeklyFolder, { recursive: true });
-    rmSyncExclude(weeklyFolder, ["WEEKEND.md"]); // Selective rm excluding files/folders inside the 2nd argument
-    
-  } else {
-
-    if ( isDryRunMode ){
-      console.log(`[DRY-RUN MODE] Folder '${weeklyFolder}' created.`);
-    } else {
-      fs.mkdirSync(weeklyFolder);
-      info(`Folder '${weeklyFolder}' created.`);
-    }
-  
-  }
-  
-  if ( weeklyUserFolderExists ) {
-    
-    warn(`User Folder '${weeklyUserFolder}' already exists. Deleting it to begin from scratch.`);
-
-    if ( isDryRunMode ){
-      console.log(`[DRY-RUN MODE] Recursively deleting user folder '${weeklyUserFolder}'.`);
-    } else {
-      fs.rmSync(weeklyUserFolder, { recursive: true });
-    }
-
-  } 
-
-  if ( isDryRunMode ){
-    console.log(`[DRY-RUN MODE] Creating user folder '${weeklyUserFolder}' from scratch.`);
-  } else {
-    fs.mkdirSync(weeklyUserFolder);
-    info(`User Folder '${weeklyUserFolder}' created.`);
-  }
-
-  const textContent = fs.readFileSync( markdownDraftTemplate, "utf-8");
+  const textContent            = fs.readFileSync( markdownDraftTemplate, "utf-8");
 
   // Parse markdown and separate Frontmatter and main content:
   const { content, data: fm, orig } = matter(textContent);
@@ -497,6 +456,51 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
       }
     });
   
+    if ( !weeklyData || weeklyData[0] === undefined ){
+      throw new Error("There's something wrong with the `weeklyData`");
+    }
+
+    // CLEAN UP
+    if ( weeklyFolderExists ) {
+
+      warn(`Folder '${weeklyFolder}' already exists. (Selectively) deleting it to begin from scratch.`);
+      
+      if ( isDryRunMode ){
+        console.log(`[DRY-RUN MODE] Deleting the contents of folder '${weeklyFolder}' excluding the following: WEEKEND.md`);
+      }
+      // fs.rmSync(weeklyFolder, { recursive: true });
+      rmSyncExclude(weeklyFolder, ["WEEKEND.md"]); // Selective rm excluding files/folders inside the 2nd argument
+      
+    } else {
+
+      if ( isDryRunMode ){
+        console.log(`[DRY-RUN MODE] Folder '${weeklyFolder}' created.`);
+      } else {
+        fs.mkdirSync(weeklyFolder);
+        info(`Folder '${weeklyFolder}' created.`);
+      }
+    
+    }
+    
+    if ( weeklyUserFolderExists ) {
+      
+      warn(`User Folder '${weeklyUserFolder}' already exists. Deleting it to begin from scratch.`);
+
+      if ( isDryRunMode ){
+        console.log(`[DRY-RUN MODE] Recursively deleting user folder '${weeklyUserFolder}'.`);
+      } else {
+        fs.rmSync(weeklyUserFolder, { recursive: true });
+      }
+
+    } 
+
+    if ( isDryRunMode ){
+      console.log(`[DRY-RUN MODE] Creating user folder '${weeklyUserFolder}' from scratch.`);
+    } else {
+      fs.mkdirSync(weeklyUserFolder);
+      info(`User Folder '${weeklyUserFolder}' created.`);
+    }
+    
     const fmString = getFrontMatterStringFromObject(fm, weeklyData.some(wd => wd.liveCodeEnabled));
   
     outputContent = parseWeeklyPatterns({ raw: fmString, numOfWeek, title }) + outputContent;
