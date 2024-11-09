@@ -1,11 +1,9 @@
 {
   "name": "sgen",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Syllabus Generation Tool",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "bin": {
     "sgen": "./sgen.js"
   },
