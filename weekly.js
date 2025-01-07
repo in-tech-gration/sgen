@@ -521,7 +521,8 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
     // Copy Media Assets from Module folder to curriculum/ 
     daysEntries.forEach( dailyEntry =>{
       
-      const dailyModuleFolder = dailyEntry[1].module;
+      let dailyModuleFolder = dailyEntry[1].module;
+
       copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder });
       copyDailyExercises({ weeklyFolder, dailyModuleFolder });
       

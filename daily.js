@@ -325,6 +325,12 @@ function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }){
 // Copies module/FOLDER/assets/ => curriculum/weekXX/assets/
 function copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder }){
 
+  // For cases like: 'javascript/misc/_w13d03/_w13d03.md' 
+  // (vs 'javascript/web_apis/cssom/intro/')
+  if ( dailyModuleFolder.endsWith(".md") ){
+    dailyModuleFolder = path.dirname(dailyModuleFolder);
+  }
+
   const sourceDailyAssetsPath = path.join( MODULES_FOLDER, dailyModuleFolder, "assets" ); 
   const targetCurriculumAssetsPath = path.join( weeklyFolder, "assets" );
   const isDryRunMode = global.sgenConfig.dryRun;
@@ -351,7 +357,7 @@ function copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder }){
 
   } catch (err) {
 
-    warn(`${xmark} ERROR COPYING: ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`);
+    warn(`${xmark} ERROR COPYING MEDIA ASSETS: ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`);
 
     // DEBUG MODE: Print full error/stack trace
     if ( global.sgenConfig.debug ){
@@ -391,7 +397,12 @@ function copyDailyExercises({ weeklyFolder, dailyModuleFolder }){
 
   } catch (err) {
 
-    warn(`${xmark} ERROR COPYING: ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`);
+    warn(`${xmark} ERROR COPYING DAILY EXERCISES: ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`);
+
+    // DEBUG MODE: Print full error/stack trace
+    if ( global.sgenConfig.debug ){
+      console.log(err);
+    }
 
   }
 
