@@ -1,11 +1,11 @@
 const path = require("node:path");
-const fs   = require("node:fs");
-const fse  = require('fs-extra');
+const fs = require("node:fs");
+const fse = require('fs-extra');
 const marked = require("marked");
 const matter = require('gray-matter');
 const { ok, warn, xmark } = require("./utils/");
 
-const { 
+const {
   templateRegexes,
   getInclude,
   replaceInclude,
@@ -15,23 +15,23 @@ const {
   replaceModuleLink
 } = require("./utils");
 
-const { 
+const {
   ATTRIBUTIONS,
   EXERCISES,
   EXTRA_RESOURCES,
   GITHUB_BLOB_URL,
-  MODULES_FOLDER, 
+  MODULES_FOLDER,
   SCHEDULE,
   STUDY_PLAN, SUMMARY
 } = require("./constants");
 
 const { parseTokenForMediaAssets, parseTokenForLiveCoding } = require("./utils");
 
-function replaceSectionFromObject({ section, contentObject, day, numOfWeek }){
+function replaceSectionFromObject({ section, contentObject, day, numOfWeek }) {
 
-  return function( match ){
+  return function (match) {
 
-    const { 
+    const {
       assetsDir,
       exercisesDir,
       weekRegex,
@@ -43,7 +43,7 @@ function replaceSectionFromObject({ section, contentObject, day, numOfWeek }){
       moduleLinkRegex
     } = templateRegexes;
 
-    if ( !contentObject[section] ){
+    if (!contentObject[section]) {
 
       warn(`Something's wrong with "${section}" section. Check this in the Module's markdown. Perhaps you are missing this section or the section is not using a Level 3 heading? => ###`);
       return `<!-- ${section} -->`;
@@ -56,16 +56,16 @@ function replaceSectionFromObject({ section, contentObject, day, numOfWeek }){
 
     let dailyScheduleSection = "";
 
-    if (contentObject[section].nextSection){
+    if (contentObject[section].nextSection) {
 
       dailyScheduleSection = contentObject[section].heading + contentObject[section].nextSection;
 
-      if ( section === EXERCISES ){
+      if (section === EXERCISES) {
 
-        const progress_update_reminder = getInclude({ 
+        const progress_update_reminder = getInclude({
           file: "progress_update_reminder",
           day,
-          numOfWeek 
+          numOfWeek
         });
         dailyScheduleSection += "\n\n" + progress_update_reminder;
 
@@ -79,47 +79,47 @@ function replaceSectionFromObject({ section, contentObject, day, numOfWeek }){
     }
 
     dailyScheduleSection = dailyScheduleSection
-    .replace(assetsAsCodeRegex, (string, match, group)=>{
-      return `${GITHUB_BLOB_URL}curriculum/week${numOfWeek}/assets`;
-    })
-    .replace(assetsDir, (string, match, group)=>{
-      return `curriculum/week${numOfWeek}/assets`;
-    })
-    .replace(exercisesDir, (string, match, group)=>{
-      return `curriculum/week${numOfWeek}/exercises`;
-    })
-    .replace(weekRegex, `Week ${numOfWeek}`)
-    .replace(weekNumRegex, `${numOfWeek}`)
-    .replace(dayNumRegex, `${String(day).padStart(2,"0")}`)
-    .replace(dayRegex, `Day ${day}`)
-    .replace(moduleReadRegex, replaceModuleRead)
-    .replace(moduleLinkRegex, replaceModuleLink);
+      .replace(assetsAsCodeRegex, (string, match, group) => {
+        return `${GITHUB_BLOB_URL}curriculum/week${numOfWeek}/assets`;
+      })
+      .replace(assetsDir, (string, match, group) => {
+        return `curriculum/week${numOfWeek}/assets`;
+      })
+      .replace(exercisesDir, (string, match, group) => {
+        return `curriculum/week${numOfWeek}/exercises`;
+      })
+      .replace(weekRegex, `Week ${numOfWeek}`)
+      .replace(weekNumRegex, `${numOfWeek}`)
+      .replace(dayNumRegex, `${String(day).padStart(2, "0")}`)
+      .replace(dayRegex, `Day ${day}`)
+      .replace(moduleReadRegex, replaceModuleRead)
+      .replace(moduleLinkRegex, replaceModuleLink);
 
     return dailyScheduleSection;
   }
 
 }
 
-function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }){
+function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }) {
 
-  const [ day, dayMeta ] = entry;
+  const [day, dayMeta] = entry;
 
-  if ( !dayMeta.module ){
+  if (!dayMeta.module) {
     return;
   }
 
   // TODO: Make this to request absolute paths instead.
-  const dailyModuleDir = dayMeta.module.startsWith('curriculum') ? dayMeta.module : path.join( MODULES_FOLDER, dayMeta.module ); 
+  const dailyModuleDir = dayMeta.module.startsWith('curriculum') ? dayMeta.module : path.join(MODULES_FOLDER, dayMeta.module);
   const pathStats = fs.statSync(dailyModuleDir);
   let dailyModule = dailyModuleDir;
   // We can either pass a directory (that contains an index.md file) or a full path that includes a filename, e.g. extra_day.md
-  if ( pathStats.isDirectory() ){
-    dailyModule = path.join( dailyModuleDir, "index.md" ); 
+  if (pathStats.isDirectory()) {
+    dailyModule = path.join(dailyModuleDir, "index.md");
   }
   let moduleMarkdown = null;
   try {
     moduleMarkdown = fs.readFileSync(dailyModule, "utf-8");
-  } catch(e){
+  } catch (e) {
     return false;
   }
   const { content, data: fm, orig } = matter(moduleMarkdown);
@@ -147,105 +147,105 @@ function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }){
   // Create Object that contains content that will replace the {{ WDX }} patterns inside the template:
   let headingCursor;
   const dailyContentObject = moduleMarkdownTokens
-  .filter( t => t.type !== "space" )
-  .reduce((acc,token,idx,tokens)=>{
+    .filter(t => t.type !== "space")
+    .reduce((acc, token, idx, tokens) => {
 
-    // Parse for Media Assets:
-    const hrefs = parseTokenForMediaAssets(token);
+      // Parse for Media Assets:
+      const hrefs = parseTokenForMediaAssets(token);
 
-    if ( hrefs.length > 0 ){
-      hrefs.forEach( href => {
-        dailyMediaAssets.entries.add(href);
-      })
-    }
+      if (hrefs.length > 0) {
+        hrefs.forEach(href => {
+          dailyMediaAssets.entries.add(href);
+        })
+      }
 
-    if (!liveCodeEnabled) {
-      liveCodeEnabled = parseTokenForLiveCoding(token);
-    }
+      if (!liveCodeEnabled) {
+        liveCodeEnabled = parseTokenForLiveCoding(token);
+      }
 
-    if ( token.type === "heading" && token.depth === 3 ){
+      if (token.type === "heading" && token.depth === 3) {
 
-      const nextToken = tokens[idx+1];
-      const isNextTokenNotAHeading = nextToken && nextToken.type !== "heading";
-      const isNextTokenNotAHeading3 = nextToken && nextToken.type === "heading" && nextToken.depth !== 3;
-      headingCursor = token;
+        const nextToken = tokens[idx + 1];
+        const isNextTokenNotAHeading = nextToken && nextToken.type !== "heading";
+        const isNextTokenNotAHeading3 = nextToken && nextToken.type === "heading" && nextToken.depth !== 3;
+        headingCursor = token;
 
-      if ( isNextTokenNotAHeading || isNextTokenNotAHeading3 ){
+        if (isNextTokenNotAHeading || isNextTokenNotAHeading3) {
 
-        let nextSection = [];
-        let nextIdx = idx + 1;
-        let nextToken = tokens[nextIdx];
+          let nextSection = [];
+          let nextIdx = idx + 1;
+          let nextToken = tokens[nextIdx];
 
-        while ( 
-          nextToken 
-          && 
-          ( nextToken.type !== "heading" 
-            || ( nextToken.type === "heading" && nextToken.depth !== 3 )
-          ) 
-        ){
+          while (
+            nextToken
+            &&
+            (nextToken.type !== "heading"
+              || (nextToken.type === "heading" && nextToken.depth !== 3)
+            )
+          ) {
 
-          const wdxMetaProgress = parseWdxMetaProgress({ token: nextToken });
-          const wdxMetaTests = parseWdxMetaTests({ token: nextToken });
+            const wdxMetaProgress = parseWdxMetaProgress({ token: nextToken });
+            const wdxMetaTests = parseWdxMetaTests({ token: nextToken });
 
-          if ( wdxMetaProgress.hasMeta ){
+            if (wdxMetaProgress.hasMeta) {
 
-            nextToken.raw = wdxMetaProgress.raw;
-            dailyProgressObject.entries.push({ 
-              ...wdxMetaProgress.meta,
-              extras: headingCursor.text === EXTRA_RESOURCES 
-            });
+              nextToken.raw = wdxMetaProgress.raw;
+              dailyProgressObject.entries.push({
+                ...wdxMetaProgress.meta,
+                extras: headingCursor.text === EXTRA_RESOURCES
+              });
 
-          } else if ( wdxMetaTests.hasMeta ) {
+            } else if (wdxMetaTests.hasMeta) {
 
-            nextToken.raw = wdxMetaTests.raw;
-            dailyTestsObject.entries.push({
-              ...wdxMetaTests.meta
-            });
+              nextToken.raw = wdxMetaTests.raw;
+              dailyTestsObject.entries.push({
+                ...wdxMetaTests.meta
+              });
 
-          } else {
+            } else {
 
-            nextSection.push(nextToken.raw);
-            
+              nextSection.push(nextToken.raw);
+
+            }
+            nextToken = tokens[++nextIdx];
+
           }
-          nextToken = tokens[++nextIdx];
-          
+
+          acc[token.text.trim()] = {
+            heading: token.raw,
+            text: token.text,
+            nextSection: nextSection.map((t, idx, array) => {
+              const newline = (idx === 0) ? "" : "\n\n";
+              return newline + t;
+            }).join("")
+
+          };
+
+        } else {
+
+          acc[token.text.trim()] = {
+            text: token.text,
+            heading: token.raw
+          };
+
         }
-
-        acc[token.text.trim()] = { 
-          heading: token.raw,
-          text: token.text,
-          nextSection: nextSection.map((t,idx,array) =>{ 
-            const newline = ( idx === 0 ) ? "" : "\n\n"; 
-            return newline + t; 
-          }).join("")
-
-        };
-
-      } else {
-
-        acc[token.text.trim()] = {
-          text: token.text,
-          heading: token.raw
-        };
 
       }
 
-    }
+      return acc;
 
-    return acc;
-
-  }, {});
+    }, {});
 
   let dailyContent = "";
 
   const msg = `Parsing "${fm.title}" sections:`;
-  const msgUnderline = Array.from({ length: msg.length }, _=> "=").join("");
-  ok( msg );
-  ok( msgUnderline );
+  const msgUnderline = Array.from({ length: msg.length }, _ => "=").join("");
+  ok(msg);
+  ok(msgUnderline);
 
   // Go through the Markdown and replace all {{ WDX }} with content:
-  dailyMarkdownTokens.forEach((token,idx,tokens) =>{
-    
+  dailyMarkdownTokens.forEach((token, idx, tokens) => {
+
     const {
 
       weekRegex,
@@ -262,48 +262,48 @@ function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }){
     } = templateRegexes;
 
     dailyContent += token.raw
-    .replace(weekRegex, `Week ${numOfWeek}`)
-    .replace(titleRegex, fm.title)
-    .replace(dayRegex, `Day ${day}`)
-    .replace(scheduleRegex, replaceSectionFromObject({ 
-      section: SCHEDULE, 
-      contentObject: dailyContentObject,
-      day,
-      numOfWeek
-    }))
-    .replace(studyPlanRegex, replaceSectionFromObject({
-      section: STUDY_PLAN, 
-      contentObject: dailyContentObject,
-      day,
-      numOfWeek
-    }))
-    .replace(summaryRegex, replaceSectionFromObject({
-      section: SUMMARY, 
-      contentObject: dailyContentObject,
-      day,
-      numOfWeek
-    }))
-    .replace(exercisesRegex, replaceSectionFromObject({
-      section: EXERCISES, 
-      contentObject: dailyContentObject,
-      day,
-      numOfWeek
-    }))
-    .replace(extrasRegex, replaceSectionFromObject({
-      section: EXTRA_RESOURCES, 
-      contentObject: dailyContentObject,
-      day,
-      numOfWeek
-    }))
-    .replace(attributionsRegex, replaceSectionFromObject({
-      section: ATTRIBUTIONS, 
-      contentObject: dailyContentObject,
-      day,
-      numOfWeek
-    }))
-    .replace(includesRegex, replaceInclude({ day, numOfWeek }));
+      .replace(weekRegex, `Week ${numOfWeek}`)
+      .replace(titleRegex, fm.title)
+      .replace(dayRegex, `Day ${day}`)
+      .replace(scheduleRegex, replaceSectionFromObject({
+        section: SCHEDULE,
+        contentObject: dailyContentObject,
+        day,
+        numOfWeek
+      }))
+      .replace(studyPlanRegex, replaceSectionFromObject({
+        section: STUDY_PLAN,
+        contentObject: dailyContentObject,
+        day,
+        numOfWeek
+      }))
+      .replace(summaryRegex, replaceSectionFromObject({
+        section: SUMMARY,
+        contentObject: dailyContentObject,
+        day,
+        numOfWeek
+      }))
+      .replace(exercisesRegex, replaceSectionFromObject({
+        section: EXERCISES,
+        contentObject: dailyContentObject,
+        day,
+        numOfWeek
+      }))
+      .replace(extrasRegex, replaceSectionFromObject({
+        section: EXTRA_RESOURCES,
+        contentObject: dailyContentObject,
+        day,
+        numOfWeek
+      }))
+      .replace(attributionsRegex, replaceSectionFromObject({
+        section: ATTRIBUTIONS,
+        contentObject: dailyContentObject,
+        day,
+        numOfWeek
+      }))
+      .replace(includesRegex, replaceInclude({ day, numOfWeek }));
 
-    if ( (idx === (tokens.length - 1)) && (day !== "5") ){
+    if ((idx === (tokens.length - 1)) && (day !== "5")) {
       dailyContent += `\n<hr class="mt-1">\n\n`;
     }
 
@@ -311,10 +311,10 @@ function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }){
 
   const hasDailyMediaAssets = dailyMediaAssets.entries.size > 0;
 
-  return { 
+  return {
     title: fm.title,
-    content: dailyContent, 
-    progress: dailyProgressObject, 
+    content: dailyContent,
+    progress: dailyProgressObject,
     tests: dailyTestsObject,
     media: hasDailyMediaAssets ? dailyMediaAssets : null,
     liveCodeEnabled
@@ -323,21 +323,21 @@ function parseDailyContent({ entry, dailyMarkdownTokens, numOfWeek }){
 }
 
 // Copies module/FOLDER/assets/ => curriculum/weekXX/assets/
-function copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder }){
+function copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder }) {
 
   // For cases like: 'javascript/misc/_w13d03/_w13d03.md' 
   // (vs 'javascript/web_apis/cssom/intro/')
-  if ( dailyModuleFolder.endsWith(".md") ){
+  if (dailyModuleFolder.endsWith(".md")) {
     dailyModuleFolder = path.dirname(dailyModuleFolder);
   }
 
-  const sourceDailyAssetsPath = path.join( MODULES_FOLDER, dailyModuleFolder, "assets" ); 
-  const targetCurriculumAssetsPath = path.join( weeklyFolder, "assets" );
+  const sourceDailyAssetsPath = path.join(MODULES_FOLDER, dailyModuleFolder, "assets");
+  const targetCurriculumAssetsPath = path.join(weeklyFolder, "assets");
   const isDryRunMode = global.sgenConfig.dryRun;
 
   try {
 
-    if ( isDryRunMode ){
+    if (isDryRunMode) {
 
       console.log(`[DRY-RUN MODE] Copying '${sourceDailyAssetsPath}' => '${targetCurriculumAssetsPath}'`);
 
@@ -346,9 +346,18 @@ function copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder }){
       fse.copySync(
         sourceDailyAssetsPath,
         targetCurriculumAssetsPath,
-        { overwrite: true }
+        {
+          filter: (src, dest) => {
+            // Do not copy OFFLINE files:
+            if (src.endsWith("assets/offline")) {
+              return false;
+            }
+            return true;
+          },
+          overwrite: true
+        }
       );
-  
+
       console.log(
         `Successfully copied ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`
       );
@@ -360,7 +369,7 @@ function copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder }){
     warn(`${xmark} ERROR COPYING MEDIA ASSETS: ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`);
 
     // DEBUG MODE: Print full error/stack trace
-    if ( global.sgenConfig.debug ){
+    if (global.sgenConfig.debug) {
       console.log(err);
     }
 
@@ -369,15 +378,15 @@ function copyDailyMediaAssets({ weeklyFolder, dailyModuleFolder }){
 }
 
 // Copies module/FOLDER/exercises/ => curriculum/weekXX/exercises/
-function copyDailyExercises({ weeklyFolder, dailyModuleFolder }){
+function copyDailyExercises({ weeklyFolder, dailyModuleFolder }) {
 
-  const sourceDailyAssetsPath = path.join( MODULES_FOLDER, dailyModuleFolder, "exercises" ); 
-  const targetCurriculumAssetsPath = path.join( weeklyFolder, "exercises" );
+  const sourceDailyAssetsPath = path.join(MODULES_FOLDER, dailyModuleFolder, "exercises");
+  const targetCurriculumAssetsPath = path.join(weeklyFolder, "exercises");
   const isDryRunMode = global.sgenConfig.dryRun;
 
   try {
 
-    if ( isDryRunMode ){
+    if (isDryRunMode) {
 
       console.log(`[DRY-RUN MODE] Copying '${sourceDailyAssetsPath}' => '${targetCurriculumAssetsPath}'`);
 
@@ -388,7 +397,7 @@ function copyDailyExercises({ weeklyFolder, dailyModuleFolder }){
         targetCurriculumAssetsPath,
         { overwrite: true }
       );
-  
+
       console.log(
         `Successfully copied ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`
       );
@@ -400,7 +409,7 @@ function copyDailyExercises({ weeklyFolder, dailyModuleFolder }){
     warn(`${xmark} ERROR COPYING DAILY EXERCISES: ${sourceDailyAssetsPath} => ${targetCurriculumAssetsPath}`);
 
     // DEBUG MODE: Print full error/stack trace
-    if ( global.sgenConfig.debug ){
+    if (global.sgenConfig.debug) {
       console.log(err);
     }
 
@@ -408,7 +417,7 @@ function copyDailyExercises({ weeklyFolder, dailyModuleFolder }){
 
 }
 
-module.exports = { 
+module.exports = {
   parseDailyContent,
   copyDailyExercises,
   copyDailyMediaAssets
