@@ -468,8 +468,26 @@ function createWeeklyContentFromYaml({ configYaml, filename }) {
       if ( isDryRunMode ){
         console.log(`[DRY-RUN MODE] Deleting the contents of folder '${weeklyFolder}' excluding the following: WEEKEND.md`);
       }
+      // Convert the following array to a Set to avoid duplicates:
+      const excludedFiles = new Set(["WEEKEND.md"]);
+
+      // Check if a file named .sgen exists in the weeklyFolder to avoid deleting important files
+      if ( fs.existsSync(path.join(weeklyFolder, ".sgen")) ){
+        info(`.sgen file found in '${weeklyFolder}'. Proceeding with selective deletion.`);
+        // Read the yaml .sgen file to get additional excluded files/folders. Look into an array called 'exclude_files_from_deletion'
+        const sgenFileContent = fs.readFileSync(path.join(weeklyFolder, ".sgen"), "utf-8");
+        const sgenConfig = yaml.parse(sgenFileContent);
+        excludedFiles.add(".sgen"); // Always exclude the .sgen file itself
+        if ( sgenConfig.exclude_files_from_deletion && Array.isArray(sgenConfig.exclude_files_from_deletion) ){
+          sgenConfig.exclude_files_from_deletion.forEach( item =>{
+            excludedFiles.add(item);
+          });
+        }
+      } else {
+        warn(`.sgen file NOT found in '${weeklyFolder}'. Be careful, as this may delete important files!`);
+      }
       // fs.rmSync(weeklyFolder, { recursive: true });
-      rmSyncExclude(weeklyFolder, ["WEEKEND.md"]); // Selective rm excluding files/folders inside the 2nd argument
+      rmSyncExclude(weeklyFolder, Array.from(excludedFiles)); // Selective rm excluding files/folders inside the 2nd argument
       
     } else {
 
