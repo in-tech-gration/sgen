@@ -173,6 +173,13 @@ function generateWeeklyProgressSheetFromWeeklyData({ weeklyData, title }){
 
     let dailyCSV = csvHeaders;
 
+    if ( dailyData.progress.entries && dailyData.progress.entries.length > 0 ){
+      ok(`${checkmark} Found progress data for: W${dailyData.progress.week} D${dailyData.progress.day}`);
+    } else {
+      warn(`Could not found progress data for: W${dailyData.progress.week} D${dailyData.progress.day.padStart(2, "0")}`);
+    }
+    
+
     if ( !dailyData || !dailyData.progress ){
       return false;
     }
