@@ -217,7 +217,6 @@ function init() {
   }
 
   configYamlPath = argument;
-  const fileExtension = path.extname(configYamlPath);
   const weekNum = parseInt(argument, 10);
   if ( typeof weekNum === "number" && !Number.isNaN(weekNum) ){
     configYamlPath = path.join(
@@ -226,6 +225,7 @@ function init() {
       `week${String(weekNum).padStart(2,"0")}.yaml`
     );
   }
+  const fileExtension = path.extname(configYamlPath);
 
   let configYaml;
   let parsedYaml;

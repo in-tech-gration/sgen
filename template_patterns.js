@@ -78,8 +78,8 @@ const templateRegexes = {
   weeklyContentRegexDoc: "SGEN:WEEKLY_CONTENT",
 
   meta: {
-    progress: /<!-- SGEN:META:PROGRESS:(?<params>.*) -->\n/i,
-    tests: /<!-- SGEN:META:TESTS:(?<params>.*) -->\n/i,
+    progress: /<!-- SGEN:META:PROGRESS:(?<params>.*) -->\n?/i,
+    tests: /<!-- SGEN:META:TESTS:(?<params>.*) -->\n?/i,
   }
 
 }
