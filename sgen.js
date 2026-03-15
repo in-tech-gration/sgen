@@ -195,7 +195,8 @@ function init() {
     .version(`v${packageJSON.version}`)
     .option('-d, --debug', 'output extra debugging.')
     .option('-p, --patterns', 'display available SGEN patterns.')
-    .option('-r, --dry-run', 'run in dry-run mode (simulation).');
+    .option('-r, --dry-run', 'run in dry-run mode (simulation).')
+    .description(`Note: sgen supports .sgen config folder files.`);
 
   program.parse();
   const options = program.opts();
@@ -212,7 +213,8 @@ function init() {
   const argument = program.args[0];
 
   if (!argument) {
-    warn("Missing configYamlPath. Re-run with -h/--help for more options.");
+    warn("Missing configYamlPath.\n");
+    program.help();
     process.exit();
   }
 
